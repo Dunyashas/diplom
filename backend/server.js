@@ -1,10 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true 
-}));
 const { PrismaClient } = require('@prisma/client');
 const {
   generateRegistrationOptions,
@@ -14,12 +10,25 @@ const {
 } = require('@simplewebauthn/server');
 const bcrypt = require('bcrypt');
 
+// СНАЧАЛА СОЗДАЕМ APP И PRISMA
 const app = express();
 const prisma = new PrismaClient();
 
+// ТЕПЕРЬ НАСТРАИВАЕМ CORS И JSON MIDDLEWARE
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true 
+}));
+app.use(express.json());
+
+// ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ
 prisma.$connect()
   .then(() => console.log(' Prisma подключена к БД'))
   .catch(err => console.error(' Ошибка подключения к БД:', err.message));
+
+// ДАЛЬШЕ ОСТАВЛЯЙТЕ ВАШ СТАРЫЙ КОД С БИЗНЕС-ЛОГИКОЙ:
+const rpName = 'Elegance Resto';
+const rpID = process.env.RP_ID || 'localhost';
 
 app.use(cors({ origin: '*', credentials: false }));
 app.use(express.json());
