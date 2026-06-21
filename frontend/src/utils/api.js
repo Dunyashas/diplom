@@ -1,8 +1,5 @@
 const currentHost = window.location.hostname;
-// Если открыто на локалке (localhost), используем порт 5000, иначе — ваш живой бэкенд на Render
-const BASE = currentHost === 'localhost' 
-  ? 'http://localhost:5000' 
-  : 'https://onrender.com';
+const BASE = `http://${currentHost}:5000`;
 
 function getHeaders(withAuth = false) {
   const headers = { 'Content-Type': 'application/json' };
