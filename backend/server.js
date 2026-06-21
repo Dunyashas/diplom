@@ -10,34 +10,29 @@ const {
 } = require('@simplewebauthn/server');
 const bcrypt = require('bcrypt');
 
-// СНАЧАЛА СОЗДАЕМ APP И PRISMA
+// 1. Инициализируем app и prisma
 const app = express();
 const prisma = new PrismaClient();
 
-// ТЕПЕРЬ НАСТРАИВАЕМ CORS И JSON MIDDLEWARE
+// 2. Настраиваем CORS и JSON middleware
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true 
 }));
 app.use(express.json());
 
-// ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ
+// 3. Подключение к базе данных
 prisma.$connect()
   .then(() => console.log(' Prisma подключена к БД'))
   .catch(err => console.error(' Ошибка подключения к БД:', err.message));
 
-// ДАЛЬШЕ ОСТАВЛЯЙТЕ ВАШ СТАРЫЙ КОД С БИЗНЕС-ЛОГИКОЙ:
-const rpName = 'Elegance Resto';
-const rpID = process.env.RP_ID || 'localhost';
-
-app.use(cors({ origin: '*', credentials: false }));
-app.use(express.json());
-
+// 4. Переменные окружения
 const rpName = 'Elegance Resto';
 const rpID = process.env.RP_ID || 'localhost';
 const originUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 const challenges = {};
 
+// 5. Функции авторизации (Middleware)
 async function requireAuth(req, res, next) {
   const userId = req.headers['x-user-id'];
   if (!userId) return res.status(401).json({ error: 'Необходима авторизация' });
@@ -59,6 +54,7 @@ async function checkAdmin(req, res, next) {
   } catch { res.status(500).json({ error: 'Ошибка проверки прав доступа' }); }
 }
 
+// 6. Базовые роуты
 app.get('/', (req, res) => res.send('<h1> API запущен</h1>'));
 
 app.get('/ping', (req, res) => res.status(200).send('Pong!'));
