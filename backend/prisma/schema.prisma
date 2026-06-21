@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// === РОЛИ И ПОЛЬЗОВАТЕЛИ ===
+enum Role {
+  GUEST
+  ADMIN
+}
+
+model User {
+  id               String         @id @default(uuid()) // Сохраняем String (UUID) для работы кода
+  firstName        String         // Нужно для работы сайта
+  lastName         String         // Нужно для работы сайта
+  fullName         String?        // Из диаграммы
+  phone            String         @unique
+  email            String         @unique
+  password         String?        // В диаграмме это PasswordHash
+  telegramId       String?        @unique
+  role             Role           @default(GUEST)
+  createdAt        DateTime       @default(now()) // В диаграмме это DateRegistration
+  updatedAt        DateTime       @updatedAt
+
+  passkeys         Passkey[]      // КРИТИЧНО: оставляем для беспарольного входа по FaceID
+  reservations     Reservation[]
+  waitlists        Waitlist[]
+  notifications    Notification[] // Из диаграммы
+  reviews          Review[]       // Из диаграммы
+}
+
+model Passkey {
+  id           String  @id @default(uuid())
+  userId       String
+  webAuthnId   String  @unique
+  publicKey    Bytes
+  counter      BigInt
+  deviceType   String
+  transports   String?
+  
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model Hall {
+  id          String        @id @default(uuid())
+  hallName    String
+  description String?
+  
+  tables      Table[]
+  floorObjects FloorObject[]
+}
+
+model FloorObject {
+  id          String   @id @default(uuid())
+  hallId      String
+  objectType  String
+  positionX   Int
+  positionY   Int
+  width       Int
+  height      Int
+  rotation    Int      @default(0)
+
+  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+}
+
+model Table {
+  id           String   @id @default(uuid())
+  number       Int      @unique // В диаграмме TableNumber
+  capacity     Int
+  posX         Float    @default(0)  // В диаграмме PositionX
+  posY         Float    @default(0)  // В диаграмме PositionY
+  shape        String   @default("rectangle")
+  tableW       Int      @default(100) // В диаграмме Width
+  tableH       Int      @default(76)  // В диаграмме Height
+  rotation     Int      @default(0)   // Из диаграммы
+  status       String   @default("active") // Из диаграммы
+  isRemoved    Boolean  @default(false) // Оставляем для серверной логики удаления
+  createdAt    DateTime @default(now()) // Из диаграммы CreatedDate
+  hallId       String?  // Связь с залом из диаграммы
+
+  hall         Hall?         @relation(fields: [hallId], references: [id])
+  reservations Reservation[]
+}
+
+model MenuCategory {
+  id           String     @id @default(uuid())
+  categoryName String     @unique
+  
+  menuItems    MenuItem[]
+}
+
+model MenuItem {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  price         Float          // В диаграмме decimal, Float в Prisma безопаснее для JS
+  imageUrl      String?        // В диаграмме Image
+  category      String         // Оставляем для совместимости со старым кодом
+  categoryId    String?        // Связь с новой таблицей категорий
+
+  menuCategory  MenuCategory?  @relation(fields: [categoryId], references: [id])
+  preorders     PreorderItem[]
+  orderDetails  OrderDetail[]  // Из диаграммы
+}
+
+enum ReservationStatus {
+  HOLD
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Reservation {
+  id           String            @id @default(uuid())
+  userId       String
+  tableId      String
+  date         DateTime 
+  startTime    DateTime 
+  endTime      DateTime 
+  status       ReservationStatus @default(HOLD) 
+  expiresAt    DateTime?
+  guestComment String?           // В диаграмме Comment
+  guestCount   Int               @default(1) // Из диаграммы
+  createdAt    DateTime          @default(now()) // Из диаграммы CreateDate
+
+  user         User              @relation(fields: [userId], references: [id])
+  table        Table             @relation(fields: [tableId], references: [id])
+  preorders    PreorderItem[]    // Оставляем для работы текущего предзаказа на сайте
+  orders       Order[]           // Из диаграммы
+  reviews      Review[]          // Из диаграммы
+}
+
+
+model Order {
+  id            String        @id @default(uuid())
+  reservationId String
+  totalPrice    Float
+  orderDate     DateTime      @default(now())
+
+  reservation   Reservation   @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  orderDetails  OrderDetail[]
+}
+
+model OrderDetail {
+  id          String   @id @default(uuid())
+  orderId     String
+  menuItemId  String
+  quantity    Int      @default(1)
+  price       Float
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+
+model PreorderItem {
+  id            String      @id @default(uuid())
+  reservationId String
+  menuItemId    String
+  quantity      Int         @default(1)
+
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  menuItem      MenuItem    @relation(fields: [menuItemId], references: [id])
+}
+
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  message    String
+  sendDate   DateTime @default(now())
+  isRead     Boolean  @default(false)
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  userId        String
+  reservationId String
+  rating        Int
+  comment       String
+  reviewDate    DateTime @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+}
+
+model Waitlist {
+  id          String   @id @default(uuid())
+  userId      String
+  targetDate  DateTime
+  partySize   Int
+  status      String   @default("WAITING")
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
