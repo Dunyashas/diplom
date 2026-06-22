@@ -370,14 +370,19 @@ app.post('/api/auth/login-options', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Пользователь с таким email не найден' });
     if (user.passkeys.length === 0) return res.status(400).json({ error: 'У этого аккаунта нет биометрических ключей. Войдите через пароль.' });
     const options = await generateAuthenticationOptions({
-      rpID,
-      allowCredentials: user.passkeys.map(pk => ({
-        id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
-        type: 'public-key'
-      })),
-     userVerification: 'required',
-      timeout: 60000,
-    });
+  rpID,
+  userVerification: 'required', 
+  allowCredentials: user.passkeys.map(pk => {
+    const rawId = typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url');
+    return {
+      id: rawId,
+      type: 'public-key',
+      transports: ['internal'] 
+    };
+  }),
+  timeout: 60000,
+});
+
     challenges[user.id] = options.challenge;
     res.json({ ...options, userId: user.id });
   } catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
