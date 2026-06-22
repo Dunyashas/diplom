@@ -27,7 +27,7 @@ model User {
   createdAt        DateTime       @default(now()) // В диаграмме это DateRegistration
   updatedAt        DateTime       @updatedAt
 
-  currentChallenge String? 
+ 
 
   currentChallenge String? 
   
