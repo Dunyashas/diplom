@@ -321,6 +321,7 @@ app.post('/api/auth/register-options', async (req, res) => {
       userDisplayName: `${user.firstName} ${user.lastName}`.trim(),
       attestationType: 'none',
       authenticatorSelection: { residentKey: 'required', userVerification: 'required'},
+      
       excludeCredentials: user.passkeys.map(pk => {
         let credentialIdString = '';
         if (typeof pk.webAuthnId === 'string') {
@@ -337,6 +338,14 @@ app.post('/api/auth/register-options', async (req, res) => {
           type: 'public-key'
         };
       }),
+    }); 
+    challenges[user.id] = options.challenge; 
+    res.json(options); 
+  } catch (err) { 
+    console.error(err); 
+    res.status(500).json({ error: err.message }); 
+  }
+});    
 app.post('/api/auth/register-verify', async (req, res) => {
   const { userId, body } = req.body;
   const expectedChallenge = challenges[userId];
