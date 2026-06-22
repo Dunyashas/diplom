@@ -29,7 +29,9 @@ prisma.$connect()
 // 4. Переменные окружения
 const rpName = 'Elegance Resto';
 const rpID = process.env.RP_ID || 'localhost';
-const originUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+// expectedOrigin — домен где запущен БЭКЕНД (именно его браузер отправляет при passkey)
+const expectedOrigin = process.env.ORIGIN || frontendUrl;
 const challenges = {};
 
 // 5. Функции авторизации (Middleware)
@@ -336,7 +338,11 @@ app.post('/api/auth/register-verify', async (req, res) => {
   if (!expectedChallenge) return res.status(400).json({ error: 'Challenge не найден или истёк' });
   try {
     const verification = await verifyRegistrationResponse({
-      response: body, expectedChallenge, expectedOrigin: originUrl, expectedRPID: rpID, requireUserVerification: false,
+      response: body,
+      expectedChallenge,
+      expectedOrigin,   // <-- исправлено
+      expectedRPID: rpID,
+      requireUserVerification: false,
     });
     if (verification.verified && verification.registrationInfo) {
       const { credential, credentialDeviceType } = verification.registrationInfo;
@@ -391,8 +397,12 @@ app.post('/api/auth/login-verify', async (req, res) => {
     });
     if (!authenticator) return res.status(400).json({ error: 'Ключ аутентификации не найден' });
     const verification = await verifyAuthenticationResponse({
-      response: body, expectedChallenge, expectedOrigin: originUrl, expectedRPID: rpID,
-      authenticator, requireUserVerification: false,
+      response: body,
+      expectedChallenge,
+      expectedOrigin,   // <-- исправлено
+      expectedRPID: rpID,
+      authenticator,
+      requireUserVerification: false,
     });
     if (verification.verified) {
       await prisma.passkey.update({ where: { id: authenticator.id }, data: { counter: verification.authenticator.counter } });
@@ -418,7 +428,6 @@ app.listen(PORT, () => {
     } catch (err) {
       const time = new Date().toLocaleTimeString();
       console.error(`[${time}]  Ошибка пинга БД:`, err.message);
-      // Переподключаемся при ошибке
       prisma.$connect().catch(e => console.error(' Переподключение не удалось:', e.message));
     }
   }, 2 * 60 * 1000);
