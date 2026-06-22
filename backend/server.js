@@ -352,35 +352,58 @@ app.post('/api/auth/register-options', async (req, res) => {
     console.error(err); 
     res.status(500).json({ error: err.message }); 
   }
-});   
+}); 
+
 app.post('/api/auth/register-verify', async (req, res) => {
   const { userId, body } = req.body;
-  const expectedChallenge = challenges[userId];
-  if (!expectedChallenge) return res.status(400).json({ error: 'Challenge не найден или истёк' });
+  
   try {
+    // Получаем пользователя из базы данных вместе с сохраненным challenge
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    
+    if (!user || !user.currentChallenge) {
+      return res.status(400).json({ error: 'Challenge не найден или истёк' });
+    }
+
+    const expectedChallenge = user.currentChallenge;
+
     const verification = await verifyRegistrationResponse({
       response: body,
       expectedChallenge,
-      expectedOrigin,   // <-- исправлено
+      expectedOrigin,
       expectedRPID: rpID,
       requireUserVerification: false,
     });
+
     if (verification.verified && verification.registrationInfo) {
       const { credential, credentialDeviceType } = verification.registrationInfo;
-      await prisma.passkey.create({
-        data: {
-          webAuthnId: Buffer.from(credential.id).toString('base64url'),
-          publicKey: Buffer.from(credential.publicKey),
-          counter: credential.counter, deviceType: credentialDeviceType, userId
-        }
-      });
-      delete challenges[userId];
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      res.json({ success: true, user });
+
+      // Используем транзакцию: одновременно создаем Passkey и очищаем использованный Challenge
+      await prisma.$transaction([
+        prisma.passkey.create({
+          data: {
+            webAuthnId: Buffer.from(credential.id).toString('base64url'),
+            publicKey: Buffer.from(credential.publicKey),
+            counter: credential.counter, 
+            deviceType: credentialDeviceType, 
+            userId
+          }
+        }),
+        prisma.user.update({
+          where: { id: userId },
+          data: { currentChallenge: null } // Стираем challenge, защищая от повторных атак
+        })
+      ]);
+
+      const updatedUser = await prisma.user.findUnique({ where: { id: userId } });
+      res.json({ success: true, user: updatedUser });
     } else {
       res.status(400).json({ error: 'Верификация не удалась' });
     }
-  } catch (err) { console.error(err); res.status(400).json({ error: err.message }); }
+  } catch (err) { 
+    console.error(err); 
+    res.status(400).json({ error: err.message }); 
+  }
 });
 
 app.post('/api/auth/login-options', async (req, res) => {
