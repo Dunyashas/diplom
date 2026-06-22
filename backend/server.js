@@ -375,7 +375,7 @@ app.post('/api/auth/login-options', async (req, res) => {
         id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
         type: 'public-key'
       })),
-      userVerification: 'discouraged',
+      userVerification: 'required',
       timeout: 60000,
     });
     challenges[user.id] = options.challenge;
