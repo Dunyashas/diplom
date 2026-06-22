@@ -355,9 +355,13 @@ app.post('/api/auth/register-options', async (req, res) => {
 }); 
 
 app.post('/api/auth/register-verify', async (req, res) => {
-  const { userId, body } = req.body;
+  // Пытаемся взять из userId, если там пусто — проверяем поле id, если и там пусто — ищем внутри user.id
+  let userId = req.body.userId || req.body.id || req.body.user?.id;
+  const { body } = req.body;
 
-  if (!userId) return res.status(400).json({ error: 'Идентификатор пользователя (userId) не передан фронтендом' });
+  if (!userId) {
+    return res.status(400).json({ error: 'Идентификатор пользователя (userId) не передан фронтендом или пуст' });
+  }
   
   try {
     // Получаем пользователя из базы данных вместе с сохраненным challenge
