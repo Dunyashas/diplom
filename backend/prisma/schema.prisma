@@ -28,6 +28,8 @@ model User {
   updatedAt        DateTime       @updatedAt
 
   currentChallenge String? 
+
+  currentChallenge String? 
   
   passkeys         Passkey[]      // КРИТИЧНО: оставляем для беспарольного входа по FaceID
   reservations     Reservation[]

@@ -29,7 +29,9 @@ prisma.$connect()
 // 4. Переменные окружения
 const rpName = 'Elegance Resto';
 const rpID = process.env.RP_ID || 'localhost';
-const originUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+// expectedOrigin — домен где запущен БЭКЕНД (именно его браузер отправляет при passkey)
+const expectedOrigin = process.env.ORIGIN || frontendUrl;
 const challenges = {};
 
 // 5. Функции авторизации (Middleware)
@@ -318,42 +320,90 @@ app.post('/api/auth/register-options', async (req, res) => {
       userName: user.email,
       userDisplayName: `${user.firstName} ${user.lastName}`.trim(),
       attestationType: 'none',
-      authenticatorSelection: { residentKey: 'preferred', userVerification: 'discouraged' },
-      excludeCredentials: user.passkeys.map(pk => ({
-        id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
-        type: 'public-key'
-      })),
-      timeout: 60000,
+      authenticatorSelection: { residentKey: 'required', userVerification: 'required'},
+      
+      excludeCredentials: user.passkeys.map(pk => {
+        let credentialIdString = '';
+        if (typeof pk.webAuthnId === 'string') {
+          credentialIdString = pk.webAuthnId.includes('+') || pk.webAuthnId.includes('/') || pk.webAuthnId.includes('=')
+            ? Buffer.from(pk.webAuthnId, 'base64').toString('base64url')
+            : pk.webAuthnId;
+        } else if (Buffer.isBuffer(pk.webAuthnId) || pk.webAuthnId instanceof Uint8Array) {   
+          credentialIdString = Buffer.from(pk.webAuthnId).toString('base64url');
+        } else {
+          credentialIdString = Buffer.from(Object.values(pk.webAuthnId)).toString('base64url');
+        }
+        return {
+          id: credentialIdString,
+          type: 'public-key'
+        };
+      }),
+    }); 
+
+    // ВМЕСТО: challenges[user.id] = options.challenge;
+    // СОХРАНЯЕМ В БАЗУ ДАННЫХ:
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { currentChallenge: options.challenge }
     });
-    challenges[user.id] = options.challenge;
-    res.json({ ...options, userId: user.id });
-  } catch (err) { console.error(err); res.status(500).json({ error: err.message || 'Ошибка регистрации' }); }
-});
+
+    res.json(options); 
+  } catch (err) { 
+    console.error(err); 
+    res.status(500).json({ error: err.message }); 
+  }
+}); 
 
 app.post('/api/auth/register-verify', async (req, res) => {
   const { userId, body } = req.body;
-  const expectedChallenge = challenges[userId];
-  if (!expectedChallenge) return res.status(400).json({ error: 'Challenge не найден или истёк' });
+  
   try {
+    // Получаем пользователя из базы данных вместе с сохраненным challenge
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    
+    if (!user || !user.currentChallenge) {
+      return res.status(400).json({ error: 'Challenge не найден или истёк' });
+    }
+
+    const expectedChallenge = user.currentChallenge;
+
     const verification = await verifyRegistrationResponse({
-      response: body, expectedChallenge, expectedOrigin: originUrl, expectedRPID: rpID, requireUserVerification: false,
+      response: body,
+      expectedChallenge,
+      expectedOrigin,
+      expectedRPID: rpID,
+      requireUserVerification: false,
     });
+
     if (verification.verified && verification.registrationInfo) {
       const { credential, credentialDeviceType } = verification.registrationInfo;
-      await prisma.passkey.create({
-        data: {
-          webAuthnId: Buffer.from(credential.id).toString('base64url'),
-          publicKey: Buffer.from(credential.publicKey),
-          counter: credential.counter, deviceType: credentialDeviceType, userId
-        }
-      });
-      delete challenges[userId];
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      res.json({ success: true, user });
+
+      // Используем транзакцию: одновременно создаем Passkey и очищаем использованный Challenge
+      await prisma.$transaction([
+        prisma.passkey.create({
+          data: {
+            webAuthnId: Buffer.from(credential.id).toString('base64url'),
+            publicKey: Buffer.from(credential.publicKey),
+            counter: credential.counter, 
+            deviceType: credentialDeviceType, 
+            userId
+          }
+        }),
+        prisma.user.update({
+          where: { id: userId },
+          data: { currentChallenge: null } // Стираем challenge, защищая от повторных атак
+        })
+      ]);
+
+      const updatedUser = await prisma.user.findUnique({ where: { id: userId } });
+      res.json({ success: true, user: updatedUser });
     } else {
       res.status(400).json({ error: 'Верификация не удалась' });
     }
-  } catch (err) { console.error(err); res.status(400).json({ error: err.message }); }
+  } catch (err) { 
+    console.error(err); 
+    res.status(400).json({ error: err.message }); 
+  }
 });
 
 app.post('/api/auth/login-options', async (req, res) => {
@@ -364,14 +414,19 @@ app.post('/api/auth/login-options', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Пользователь с таким email не найден' });
     if (user.passkeys.length === 0) return res.status(400).json({ error: 'У этого аккаунта нет биометрических ключей. Войдите через пароль.' });
     const options = await generateAuthenticationOptions({
-      rpID,
-      allowCredentials: user.passkeys.map(pk => ({
-        id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
-        type: 'public-key'
-      })),
-      userVerification: 'discouraged',
-      timeout: 60000,
-    });
+  rpID,
+  userVerification: 'required', 
+  allowCredentials: user.passkeys.map(pk => {
+    const rawId = typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url');
+    return {
+      id: rawId,
+      type: 'public-key',
+      transports: ['internal'] 
+    };
+  }),
+  timeout: 60000,
+});
+
     challenges[user.id] = options.challenge;
     res.json({ ...options, userId: user.id });
   } catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
@@ -391,8 +446,12 @@ app.post('/api/auth/login-verify', async (req, res) => {
     });
     if (!authenticator) return res.status(400).json({ error: 'Ключ аутентификации не найден' });
     const verification = await verifyAuthenticationResponse({
-      response: body, expectedChallenge, expectedOrigin: originUrl, expectedRPID: rpID,
-      authenticator, requireUserVerification: false,
+      response: body,
+      expectedChallenge,
+      expectedOrigin,   // <-- исправлено
+      expectedRPID: rpID,
+      authenticator,
+      requireUserVerification: false,
     });
     if (verification.verified) {
       await prisma.passkey.update({ where: { id: authenticator.id }, data: { counter: verification.authenticator.counter } });
@@ -418,7 +477,6 @@ app.listen(PORT, () => {
     } catch (err) {
       const time = new Date().toLocaleTimeString();
       console.error(`[${time}]  Ошибка пинга БД:`, err.message);
-      // Переподключаемся при ошибке
       prisma.$connect().catch(e => console.error(' Переподключение не удалось:', e.message));
     }
   }, 2 * 60 * 1000);
