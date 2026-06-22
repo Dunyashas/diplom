@@ -339,13 +339,20 @@ app.post('/api/auth/register-options', async (req, res) => {
         };
       }),
     }); 
-    challenges[user.id] = options.challenge; 
+
+    // ВМЕСТО: challenges[user.id] = options.challenge;
+    // СОХРАНЯЕМ В БАЗУ ДАННЫХ:
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { currentChallenge: options.challenge }
+    });
+
     res.json(options); 
   } catch (err) { 
     console.error(err); 
     res.status(500).json({ error: err.message }); 
   }
-});    
+});   
 app.post('/api/auth/register-verify', async (req, res) => {
   const { userId, body } = req.body;
   const expectedChallenge = challenges[userId];
