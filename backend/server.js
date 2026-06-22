@@ -347,12 +347,16 @@ app.post('/api/auth/register-options', async (req, res) => {
       data: { currentChallenge: options.challenge }
     });
 
-    res.json(options); 
+   res.json({
+      ...options,
+      userId: user.id
+    }); 
+
   } catch (err) { 
     console.error(err); 
     res.status(500).json({ error: err.message }); 
   }
-}); 
+});
 
 app.post('/api/auth/register-verify', async (req, res) => {
   // Пытаемся взять из userId, если там пусто — проверяем поле id, если и там пусто — ищем внутри user.id
