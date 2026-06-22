@@ -320,7 +320,7 @@ app.post('/api/auth/register-options', async (req, res) => {
       userName: user.email,
       userDisplayName: `${user.firstName} ${user.lastName}`.trim(),
       attestationType: 'none',
-      authenticatorSelection: { residentKey: 'required', userVerification: 'required', authenticatorAttachment: 'platform'},
+      authenticatorSelection: { residentKey: 'required', userVerification: 'required'},
       excludeCredentials: user.passkeys.map(pk => ({
         id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
         type: 'public-key'
@@ -375,7 +375,7 @@ app.post('/api/auth/login-options', async (req, res) => {
         id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
         type: 'public-key'
       })),
-      userVerification: 'required',
+     userVerification: 'required',
       timeout: 60000,
     });
     challenges[user.id] = options.challenge;
