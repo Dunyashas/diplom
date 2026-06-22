@@ -320,7 +320,7 @@ app.post('/api/auth/register-options', async (req, res) => {
       userName: user.email,
       userDisplayName: `${user.firstName} ${user.lastName}`.trim(),
       attestationType: 'none',
-      authenticatorSelection: { residentKey: 'preferred', userVerification: 'discouraged' },
+      authenticatorSelection: { residentKey: 'required', userVerification: 'required', authenticatorAttachment: 'platform'},
       excludeCredentials: user.passkeys.map(pk => ({
         id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
         type: 'public-key'
