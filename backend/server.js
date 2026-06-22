@@ -321,17 +321,22 @@ app.post('/api/auth/register-options', async (req, res) => {
       userDisplayName: `${user.firstName} ${user.lastName}`.trim(),
       attestationType: 'none',
       authenticatorSelection: { residentKey: 'required', userVerification: 'required'},
-      excludeCredentials: user.passkeys.map(pk => ({
-        id: typeof pk.webAuthnId === 'string' ? pk.webAuthnId : Buffer.from(pk.webAuthnId).toString('base64url'),
-        type: 'public-key'
-      })),
-      timeout: 60000,
-    });
-    challenges[user.id] = options.challenge;
-    res.json({ ...options, userId: user.id });
-  } catch (err) { console.error(err); res.status(500).json({ error: err.message || 'Ошибка регистрации' }); }
-});
-
+      excludeCredentials: user.passkeys.map(pk => {
+        let credentialIdString = '';
+        if (typeof pk.webAuthnId === 'string') {
+          credentialIdString = pk.webAuthnId.includes('+') || pk.webAuthnId.includes('/') || pk.webAuthnId.includes('=')
+            ? Buffer.from(pk.webAuthnId, 'base64').toString('base64url')
+            : pk.webAuthnId;
+        } else if (Buffer.isBuffer(pk.webAuthnId) || pk.webAuthnId instanceof Uint8Array) {   
+          credentialIdString = Buffer.from(pk.webAuthnId).toString('base64url');
+        } else {
+          credentialIdString = Buffer.from(Object.values(pk.webAuthnId)).toString('base64url');
+        }
+        return {
+          id: credentialIdString,
+          type: 'public-key'
+        };
+      }),
 app.post('/api/auth/register-verify', async (req, res) => {
   const { userId, body } = req.body;
   const expectedChallenge = challenges[userId];
