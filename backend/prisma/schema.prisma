@@ -27,6 +27,8 @@ model User {
   createdAt        DateTime       @default(now()) // В диаграмме это DateRegistration
   updatedAt        DateTime       @updatedAt
 
+  currentChallenge String? 
+  
   passkeys         Passkey[]      // КРИТИЧНО: оставляем для беспарольного входа по FaceID
   reservations     Reservation[]
   waitlists        Waitlist[]
