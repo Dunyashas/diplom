@@ -16,7 +16,7 @@ export default function Navbar({ onNavigate, activePage }) {
       <style>{`
         .nav-container {
           max-width: 100%; 
-          padding: 0 6%; /* Тот же отступ, что и в основном контенте */
+          padding: 0 6%; /* Отступ как у основного контента */
           margin: 0 auto; 
           display: flex; 
           align-items: center; 
@@ -27,10 +27,23 @@ export default function Navbar({ onNavigate, activePage }) {
         
         /* Мобильный вид */
         @media (max-width: 600px) {
-          .nav-container { padding: 0 4%; height: auto; padding-top: 10px; padding-bottom: 10px; flex-direction: column; gap: 12px;}
-          .nav-buttons { width: 100%; justify-content: center; margin-bottom: 10px; }
-          .nav-user-block { width: 100%; justify-content: space-between; }
-          .nav-user-info { display: block !important; } /* Имя всегда видно */
+          .nav-container { 
+            padding: 0 4%; 
+            height: auto; 
+            padding-top: 15px; 
+            padding-bottom: 15px; 
+            flex-direction: column; 
+            gap: 15px;
+          }
+          .nav-buttons { width: 100%; justify-content: center; order: 2; }
+          .nav-logo { order: 1; }
+          .nav-user-block { 
+            width: 100%; 
+            justify-content: space-between; 
+            order: 3; 
+            display: flex !important; 
+          }
+          .nav-user-info { display: block !important; }
         }
       `}</style>
 
@@ -66,5 +79,19 @@ export default function Navbar({ onNavigate, activePage }) {
         </div>
       </div>
     </nav>
+  );
+}
+
+function NavBtn({ label, onClick, active }) {
+  return (
+    <button onClick={onClick} style={{
+      padding: '8px 16px', border: 'none', borderRadius: '4px',
+      background: active ? 'rgba(201,168,76,0.15)' : 'transparent',
+      color: active ? GOLD : 'rgba(255,255,255,0.7)',
+      fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia',
+      textTransform: 'uppercase', letterSpacing: '1px', transition: '0.2s'
+    }}>
+      {label}
+    </button>
   );
 }
