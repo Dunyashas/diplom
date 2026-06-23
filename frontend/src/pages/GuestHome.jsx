@@ -107,12 +107,12 @@ export default function GuestHome({ onNavigate }) {
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
       <Navbar onNavigate={onNavigate} />
 
-      {/* Адаптивный контейнер: на мобильных сожмется до 480px, на ПК расширится до 1000px */}
-      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '24px 16px', boxSizing: 'border-box' }}>
+      {/* Контейнер теперь на 100% ширины экрана с адаптивными отступами */}
+      <div style={{ width: '100%', padding: '24px 5%', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
         {step < 4 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '14px 20px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
             {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
               const s = i + 1;
               const active = step === s;
@@ -127,7 +127,7 @@ export default function GuestHome({ onNavigate }) {
                   }}>
                     {done ? '✓' : s}
                   </div>
-                  <span style={{ fontSize: '13px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
+                  <span style={{ fontSize: '14px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
                 </div>
               );
             })}
@@ -136,10 +136,10 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 1: КАРТА СТОЛОВ */}
         {step === 1 && (
-          <div style={{ width: '100%', maxWidth: '100%', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '16px' }}>
-              Используйте схему зала для выбора подходящего столика
+          <div style={{ width: '100%' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '16px' }}>
+              Используйте интерактивную схему зала для выбора подходящего столика
             </p>
 
             {/* Легенда */}
@@ -147,16 +147,16 @@ export default function GuestHome({ onNavigate }) {
               {[['#27ae60', 'Свободен'], ['#e74c3c', 'Занят'], [GOLD, 'Выбран']].map(([color, label]) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color }} />
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>{label}</span>
+                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>{label}</span>
                 </div>
               ))}
             </div>
 
-            {/* Окно просмотра: теперь на ПК оно шире и выше, а на мобилках сохраняет внутренний скролл */}
+            {/* Окно просмотра карты (подстраивается под высоту экрана ПК) */}
             <div style={{ 
               width: '100%', 
-              height: '500px', 
-              maxHeight: '70vh',
+              height: '65vh', 
+              minHeight: '480px',
               overflow: 'auto', 
               border: `1px solid rgba(201,168,76,0.2)`, 
               borderRadius: '8px', 
@@ -164,18 +164,18 @@ export default function GuestHome({ onNavigate }) {
               marginBottom: '20px',
               WebkitOverflowScrolling: 'touch' 
             }}>
-              {/* Сама карта: на маленьких экранах она 560px (чтобы скроллить), на ПК занимает 100% контейнера */}
+              {/* Сама карта: растягивается на ПК, но не сжимается меньше 600px на смартфонах для скролла */}
               <div style={{ 
                 position: 'relative', 
-                minWidth: '100%',
+                minWidth: '600px',
                 width: '100%',
-                minHeight: '100%',
-                height: '600px', 
+                height: '100%', 
+                minHeight: '550px',
                 background: 'linear-gradient(180deg, #161616 0%, #111 100%)', 
                 boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' 
               }}>
                 
-                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '9px', padding: '4px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
+                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '4px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
                 
                 {tables.map(table => {
                   const isSelected = selectedTable?.id === table.id;
@@ -216,9 +216,9 @@ export default function GuestHome({ onNavigate }) {
               </div>
             </div>
 
-            {/* Подтверждение стола — центрировано и адаптировано под любую ширину */}
+            {/* Подтверждение стола */}
             {selectedTable && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '6px', padding: '16px', maxWidth: '480px', margin: '0 auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '6px', padding: '16px', maxWidth: '400px', margin: '0 auto' }}>
                 <div style={{ textAlign: 'center' }}>
                   <span style={{ color: GOLD, fontWeight: '600', fontSize: '16px' }}>Стол №{selectedTable.number}</span>
                   <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginLeft: '8px' }}>({selectedTable.capacity} мест)</span>
@@ -231,9 +231,9 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 2: ДАТА И ВРЕМЯ */}
         {step === 2 && (
-          <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Дата и время</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>Стол №{selectedTable?.number} · {selectedTable?.capacity} мест</p>
+          <div style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Дата и время</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '20px' }}>Стол №{selectedTable?.number} · {selectedTable?.capacity} мест</p>
 
             <FormGroup label="Дата">
               <input type="date" min={minDate} value={reserveDate} onChange={e => handleDateTimeChange(e.target.value, reserveTime)} style={inputStyle} />
@@ -255,7 +255,7 @@ export default function GuestHome({ onNavigate }) {
 
             {error && <ErrorBox msg={error} />}
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
               <button onClick={() => { setStep(1); setError(''); }} style={btnStyle('rgba(255,255,255,0.08)', '#fff', true)}>Назад</button>
               <button onClick={() => { if (!reserveDate || !reserveTime) { setError('Укажите дату и время'); return; } setError(''); setStep(3); }} style={{ ...btnStyle(GOLD, '#000'), flex: 1 }}>Далее →</button>
             </div>
@@ -265,36 +265,36 @@ export default function GuestHome({ onNavigate }) {
         {/* ШАГ 3: ПРЕДЗАКАЗ МЕНЮ */}
         {step === 3 && (
           <div style={{ width: '100%' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Предзаказ блюд</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '24px' }}>По желанию — можно заказать на месте</p>
+            <h2 style={{ fontSize: '22px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Предзаказ блюд</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '24px' }}>По желанию — можно заказать на месте</p>
 
-            {/* На ПК разносим меню и корзину в две аккуратные колонки */}
-            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
+            {/* Двухколоночная адаптивная сетка на Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', alignItems: 'flex-start' }}>
               
-              <div style={{ flex: '1 1 500px' }}>
+              <div style={{ width: '100%' }}>
                 {menu.length === 0 && <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', padding: '24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px' }}>Menu empty</div>}
                 
                 {Object.entries(menuByCategory).map(([category, items]) => (
-                  <div key={category} style={{ marginBottom: '20px' }}>
-                    <div style={{ fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', color: GOLD, marginBottom: '10px', paddingBottom: '4px', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
+                  <div key={category} style={{ marginBottom: '24px' }}>
+                    <div style={{ fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase', color: GOLD, marginBottom: '12px', paddingBottom: '6px', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
                       {category}
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {items.map(item => {
                         const qty = cart[item.id] || 0;
                         return (
                           <div key={item.id} style={{
-                            display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', 
+                            display: 'flex', flexDirection: 'column', gap: '12px', padding: '14px', 
                             background: qty > 0 ? 'rgba(201,168,76,0.05)' : 'rgba(255,255,255,0.02)',
                             border: `1px solid ${qty > 0 ? 'rgba(201,168,76,0.25)' : 'rgba(255,255,255,0.06)'}`,
                             borderRadius: '6px'
                           }}>
                             <div>
-                              <div style={{ fontSize: '14px', fontWeight: '600', color: qty > 0 ? GOLD : '#fff' }}>{item.name}</div>
-                              {item.description && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{item.description}</div>}
+                              <div style={{ fontSize: '15px', fontWeight: '600', color: qty > 0 ? GOLD : '#fff' }}>{item.name}</div>
+                              {item.description && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>{item.description}</div>}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContext: 'space-between', justifyContent: 'space-between' }}>
-                              <span style={{ color: GOLD, fontWeight: '600', fontSize: '14px' }}>{item.price} ₽</span>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ color: GOLD, fontWeight: '600', fontSize: '15px' }}>{item.price} ₽</span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <button onClick={() => setCart(c => ({ ...c, [item.id]: Math.max(0, (c[item.id] || 0) - 1) }))} style={counterBtnStyle}>−</button>
                                 <span style={{ minWidth: '16px', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>{qty}</span>
@@ -309,9 +309,9 @@ export default function GuestHome({ onNavigate }) {
                 ))}
               </div>
 
-              {/* Сводка корзины справа на ПК / внизу на смартфонах */}
-              <div style={{ flex: '1 1 320px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '16px', position: 'sticky', top: '20px' }}>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '12px' }}>Итого бронирования</div>
+              {/* Корзина (Будет справа на ПК и снизу на смартфонах) */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '20px', position: 'sticky', top: '20px' }}>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '14px' }}>Итого бронирования</div>
                 
                 <SummaryRow label="Стол" value={`№${selectedTable?.number}`} />
                 <SummaryRow label="Дата" value={reserveDate ? new Date(reserveDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '—'} />
@@ -319,18 +319,18 @@ export default function GuestHome({ onNavigate }) {
                 
                 {cartItems().length > 0 && (
                   <>
-                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '12px 0' }} />
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
                     {cartItems().map(i => (
                       <SummaryRow key={i.id} label={`${i.name} ×${i.quantity}`} value={`${i.price * i.quantity} ₽`} />
                     ))}
-                    <div style={{ height: '1px', background: `rgba(201,168,76,0.2)`, margin: '12px 0' }} />
+                    <div style={{ height: '1px', background: `rgba(201,168,76,0.2)`, margin: '14px 0' }} />
                     <SummaryRow label="Сумма предзаказа" value={`${cartTotal()} ₽`} gold />
                   </>
                 )}
 
                 {error && <ErrorBox msg={error} />}
 
-                <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button onClick={handleBook} disabled={loading} style={{ ...btnStyle(GOLD, '#000'), width: '100%' }}>
                     {loading ? 'Оформляем...' : '✓ Подтвердить бронь'}
                   </button>
@@ -346,15 +346,15 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textAlign: 'center', padding: '40px 10px', maxWidth: '480px', margin: '0 auto' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🍽️</div>
-            <h2 style={{ fontSize: '22px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '4px' }}>
+          <div style={{ textAlign: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
+            <div style={{ fontSize: '54px', marginBottom: '16px' }}>🍽️</div>
+            <h2 style={{ fontSize: '24px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', marginBottom: '4px' }}>
               Стол №{selectedTable?.number} · {reserveDate ? new Date(reserveDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : ''} · {reserveTime}
             </p>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '32px' }}>Ждем вас в гости!</p>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button onClick={reset} style={btnStyle(GOLD, '#000')}>Забронировать ещё</button>
               <button onClick={() => onNavigate('reservations')} style={btnStyle('rgba(255,255,255,0.08)', '#fff', true)}>Мои брони</button>
             </div>
@@ -367,8 +367,8 @@ export default function GuestHome({ onNavigate }) {
 
 function FormGroup({ label, children }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <label style={{ display: 'block', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '6px' }}>
+    <div style={{ marginBottom: '18px' }}>
+      <label style={{ display: 'block', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '6px' }}>
         {label}
       </label>
       {children}
@@ -378,30 +378,30 @@ function FormGroup({ label, children }) {
 
 function SummaryRow({ label, value, gold }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>{label}</span>
-      <span style={{ fontSize: '13px', fontWeight: gold ? '700' : '400', color: gold ? '#c9a84c' : '#fff', flexShrink: 0 }}>{value}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+      <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>{label}</span>
+      <span style={{ fontSize: '14px', fontWeight: gold ? '700' : '400', color: gold ? '#c9a84c' : '#fff', flexShrink: 0 }}>{value}</span>
     </div>
   );
 }
 
 function ErrorBox({ msg }) {
   return (
-    <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '4px', padding: '10px', marginBottom: '12px', color: '#fca5a5', fontSize: '13px', textAlign: 'center' }}>
+    <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: '4px', padding: '12px', marginBottom: '14px', color: '#fca5a5', fontSize: '14px', textAlign: 'center' }}>
       {msg}
     </div>
   );
 }
 
 const inputStyle = {
-  width: '100%', padding: '12px', boxSizing: 'border-box',
+  width: '100%', padding: '14px', boxSizing: 'border-box',
   background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)',
   borderRadius: '6px', color: '#fff', fontSize: '16px', outline: 'none',
   colorScheme: 'dark'
 };
 
 const counterBtnStyle = {
-  width: '32px', height: '32px', borderRadius: '50%', 
+  width: '34px', height: '34px', borderRadius: '50%', 
   border: `1px solid rgba(255,255,255,0.2)`, background: 'transparent', 
   color: '#fff', cursor: 'pointer', fontSize: '16px', 
   display: 'flex', alignItems: 'center', justifyContent: 'center'
