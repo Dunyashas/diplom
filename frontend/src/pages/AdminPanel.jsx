@@ -243,6 +243,9 @@ function TablesTab() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [error, setError] = useState('');
   const isDragging = useRef(false);
+  const isMobile = window.innerWidth <= 768;
+
+const [showManagePanel, setShowManagePanel] = useState(false);
 
   const load = async () => {
     const data = await api.getTables();
@@ -340,7 +343,7 @@ function TablesTab() {
 
         <div>
           <div style={{
-            position: 'relative', height: '520px',
+            position: 'relative', height: isMobile ? '80vh' : '520px',
             background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
             border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '4px', overflow: 'hidden'
           }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
@@ -428,8 +431,17 @@ function TablesTab() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        
+       {!isMobile && (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px'
+    }}
+  >
 
+          
           {selectedTable ? (
             <div style={{ background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.3)`, borderRadius: '4px', padding: '20px' }}>
               <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>
@@ -514,6 +526,7 @@ function TablesTab() {
             </div>
           </div>
         </div>
+       )}
       </div>
     </div>
   );
