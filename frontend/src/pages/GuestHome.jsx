@@ -107,12 +107,12 @@ export default function GuestHome({ onNavigate }) {
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
       <Navbar onNavigate={onNavigate} />
 
-      {/* Контейнер теперь на 100% ширины экрана с адаптивными отступами */}
-      <div style={{ width: '100%', padding: '24px 5%', boxSizing: 'border-box' }}>
+      {/* Контейнер растягивается на всю ширину ПК, как на фото 2 */}
+      <div style={{ width: '100%', padding: '24px 4%', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
         {step < 4 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '14px 20px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', background: 'rgba(255,255,255,0.02)', padding: '16px 24px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
             {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
               const s = i + 1;
               const active = step === s;
@@ -139,11 +139,11 @@ export default function GuestHome({ onNavigate }) {
           <div style={{ width: '100%' }}>
             <h2 style={{ fontSize: '24px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '16px' }}>
-              Используйте интерактивную схему зала для выбора подходящего столика
+              Нажмите на свободный стол, чтобы начать бронирование
             </p>
 
             {/* Легенда */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
               {[['#27ae60', 'Свободен'], ['#e74c3c', 'Занят'], [GOLD, 'Выбран']].map(([color, label]) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color }} />
@@ -152,30 +152,29 @@ export default function GuestHome({ onNavigate }) {
               ))}
             </div>
 
-            {/* Окно просмотра карты (подстраивается под высоту экрана ПК) */}
+            {/* Окно просмотра карты */}
             <div style={{ 
               width: '100%', 
-              height: '65vh', 
-              minHeight: '480px',
+              height: '60vh', 
+              minHeight: '450px',
               overflow: 'auto', 
-              border: `1px solid rgba(201,168,76,0.2)`, 
+              border: `1px solid rgba(201,168,76,0.15)`, 
               borderRadius: '8px', 
               background: '#111', 
-              marginBottom: '20px',
+              marginBottom: '24px',
               WebkitOverflowScrolling: 'touch' 
             }}>
-              {/* Сама карта: растягивается на ПК, но не сжимается меньше 600px на смартфонах для скролла */}
+              {/* Исправлено: теперь на ПК занимает честные 100% ширины экрана без ограничений! */}
               <div style={{ 
                 position: 'relative', 
-                minWidth: '600px',
                 width: '100%',
+                minWidth: '100%',
                 height: '100%', 
-                minHeight: '550px',
                 background: 'linear-gradient(180deg, #161616 0%, #111 100%)', 
                 boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' 
               }}>
                 
-                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '4px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
+                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '6px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
                 
                 {tables.map(table => {
                   const isSelected = selectedTable?.id === table.id;
@@ -211,7 +210,7 @@ export default function GuestHome({ onNavigate }) {
                 })}
 
                 {tables.length === 0 && (
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>Нет доступных столов</div>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '14px' }}>Нет доступных столов</div>
                 )}
               </div>
             </div>
@@ -268,7 +267,6 @@ export default function GuestHome({ onNavigate }) {
             <h2 style={{ fontSize: '22px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Предзаказ блюд</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '24px' }}>По желанию — можно заказать на месте</p>
 
-            {/* Двухколоночная адаптивная сетка на Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', alignItems: 'flex-start' }}>
               
               <div style={{ width: '100%' }}>
@@ -309,7 +307,7 @@ export default function GuestHome({ onNavigate }) {
                 ))}
               </div>
 
-              {/* Корзина (Будет справа на ПК и снизу на смартфонах) */}
+              {/* Корзина */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '20px', position: 'sticky', top: '20px' }}>
                 <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '14px' }}>Итого бронирования</div>
                 
