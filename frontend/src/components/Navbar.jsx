@@ -37,19 +37,11 @@ export default function Navbar({ onNavigate, activePage }) {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 120px;
+            gap: 220px;
           }
         }
 
-        @media (min-width: 601px) {
-          .nav-logo {
-              transform: translateX(-50px);
-          }
-
-          .nav-user-block {
-              transform: translateX(50px);
-          }
-        }
+       
 
 
         @media (max-width: 600px) {
