@@ -24,6 +24,14 @@ export default function Navbar({ onNavigate, activePage }) {
           height: 70px;
         }
         .nav-buttons { display: flex; gap: 8px; }
+
+        @media (min-width: 601px) {
+          .nav-container {
+            max-width: 1200px; /* Ограничиваем ширину для ПК */
+            padding: 0 6%;     /* Устанавливаем идентичный отступ */
+            margin: 0 auto;    /* Центрируем блок */
+          }
+        }
         
         @media (max-width: 600px) {
           .nav-container { 
