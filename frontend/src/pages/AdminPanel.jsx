@@ -345,10 +345,7 @@ useEffect(() => {
     <div>
       <PageTitle title="Карта зала" subtitle="Перетаскивайте столы · Тяните за ↘ угол чтобы изменить размер" />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
-
        <div>
-  
-   
  <div
   style={{
     width: '100%',
@@ -371,85 +368,140 @@ useEffect(() => {
     onDragOver={e => e.preventDefault()}
     onDrop={handleDrop}
   >
-              
-              ВХОД
-            </div>
+    {/* вход */}
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: '42%',
+        width: '16%',
+        background: 'rgba(201,168,76,0.15)',
+        color: GOLD,
+        textAlign: 'center',
+        fontSize: '10px',
+        padding: '6px 0',
+        borderRadius: '0 0 4px 4px',
+        zIndex: 2
+      }}
+    >
+      ВХОД
+    </div>
 
-            {tables.map(table => {
-              const isSelected = selectedTable?.id === table.id;
-              const w = table.tableW || (table.shape === 'circle' ? 80 : 100);
-              const h = table.tableH || 76;
+    {/* столы */}
+    {tables.map(table => {
+      const isSelected = selectedTable?.id === table.id;
+      const w = table.tableW || (table.shape === 'circle' ? 80 : 100);
+      const h = table.tableH || 76;
 
-              return (
-                <div key={table.id}
-                  draggable
-                  onDragStart={e => { if (isDragging.current) { e.preventDefault(); return; } e.dataTransfer.setData('tableId', table.id); }}
-                  onClick={() => setSelectedTable(isSelected ? null : table)}
-                  style={{
-                    position: 'absolute',
-                    left: `calc(${table.posX}% - ${w / 2}px)`,
-                    top: `calc(${table.posY}% - ${h / 2}px)`,
-                    width: `${w}px`, height: `${h}px`,
-                    borderRadius: table.shape === 'circle' ? '50%' : '6px',
-                    background: isSelected ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.12)',
-                    border: `2px solid ${isSelected ? '#fff' : GOLD}`,
-                    color: isSelected ? '#fff' : GOLD,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'move', userSelect: 'none',
-                    boxShadow: isSelected ? '0 0 16px rgba(201,168,76,0.5)' : '0 4px 12px rgba(0,0,0,0.4)',
-                    transition: 'box-shadow 0.15s'
-                  }}>
-                  <span style={{ fontWeight: '700', fontSize: '14px' }}>№{table.number}</span>
-                  <span style={{ fontSize: '10px', opacity: 0.7 }}>{table.capacity} мест</span>
+      return (
+        <div
+          key={table.id}
+          draggable
+          onDragStart={e => {
+            if (isDragging.current) {
+              e.preventDefault();
+              return;
+            }
+            e.dataTransfer.setData('tableId', table.id);
+          }}
+          onClick={() => setSelectedTable(isSelected ? null : table)}
+          style={{
+            position: 'absolute',
+            left: `calc(${table.posX}% - ${w / 2}px)`,
+            top: `calc(${table.posY}% - ${h / 2}px)`,
+            width: `${w}px`,
+            height: `${h}px`,
+            borderRadius: table.shape === 'circle' ? '50%' : '6px',
+            background: isSelected
+              ? 'rgba(201,168,76,0.25)'
+              : 'rgba(201,168,76,0.12)',
+            border: `2px solid ${isSelected ? '#fff' : GOLD}`,
+            color: isSelected ? '#fff' : GOLD,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'move',
+            userSelect: 'none',
+            boxShadow: isSelected
+              ? '0 0 16px rgba(201,168,76,0.5)'
+              : '0 4px 12px rgba(0,0,0,0.4)',
+            transition: 'box-shadow 0.15s'
+          }}
+        >
+          <span style={{ fontWeight: '700', fontSize: '14px' }}>
+            №{table.number}
+          </span>
+          <span style={{ fontSize: '10px', opacity: 0.7 }}>
+            {table.capacity} мест
+          </span>
 
-                  <button onClick={(e) => { e.stopPropagation(); handleDelete(table.id); }}
-                    style={{ position: 'absolute', top: '-7px', right: '-7px', width: '20px', height: '20px', borderRadius: '50%', background: '#e74c3c', border: 'none', color: '#fff', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ×
-                  </button>
+          {/* удалить */}
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              handleDelete(table.id);
+            }}
+            style={{
+              position: 'absolute',
+              top: '-7px',
+              right: '-7px',
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              background: '#e74c3c',
+              border: 'none',
+              color: '#fff',
+              fontSize: '13px',
+              cursor: 'pointer'
+            }}
+          >
+            ×
+          </button>
 
-                  {table.shape !== 'circle' && (
-                    <div
-                      onMouseDown={(e) => startResize(e, table)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', bottom: '2px', right: '2px',
-                        width: '14px', height: '14px', cursor: 'se-resize',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(201,168,76,0.6)',
-                        fontSize: '10px', lineHeight: 1,
-                        userSelect: 'none'
-                      }}
-                      title="Потяните для изменения размера"
-                    >
-                      ◢
-                    </div>
-                  )}
+          {/* resize */}
+          <div
+            onMouseDown={e => startResize(e, table)}
+            onClick={e => e.stopPropagation()}
+            style={{
+              position: 'absolute',
+              bottom: '2px',
+              right: '2px',
+              width: '14px',
+              height: '14px',
+              cursor: 'se-resize',
+              color: isSelected
+                ? 'rgba(255,255,255,0.8)'
+                : 'rgba(201,168,76,0.6)',
+              fontSize: '10px',
+              userSelect: 'none'
+            }}
+            title="Изменить размер"
+          >
+            ◢
+          </div>
+        </div>
+      );
+    })}
 
-                  {table.shape === 'circle' && (
-                    <div
-                      onMouseDown={(e) => startResize(e, table)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', bottom: '-8px', right: '-8px',
-                        width: '16px', height: '16px', cursor: 'se-resize',
-                        background: isSelected ? 'rgba(255,255,255,0.3)' : 'rgba(201,168,76,0.4)',
-                        borderRadius: '50%', border: `1px solid ${GOLD}`,
-                        userSelect: 'none'
-                      }}
-                      title="Потяните для изменения размера"
-                    />
-                  )}
-                </div>
-              );
-            })}
-
-            {tables.length === 0 && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '14px' }}>
-                Добавьте первый стол →
-              </div>
-            )}
-          </div> {/* карта */}
-          </div> {/* scroll wrapper */}
+    {/* пусто */}
+    {tables.length === 0 && (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'rgba(255,255,255,0.2)',
+          fontSize: '14px'
+        }}
+      >
+        Добавьте первый стол →
+      </div>
+    )}
+  </div>
+</div>
           <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>
             Перетащите стол чтобы переместить · Нажмите чтобы выбрать · Тяните ◢ чтобы изменить размер
           </p>
