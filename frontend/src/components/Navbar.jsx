@@ -27,16 +27,28 @@ export default function Navbar({ onNavigate, activePage }) {
         
         @media (max-width: 600px) {
           .nav-container { 
-            padding: 0 4%; 
+            padding: 15px 4%; 
             height: auto; 
-            padding-top: 15px; 
-            padding-bottom: 15px; 
             flex-direction: column; 
-            gap: 15px;
+            gap: 12px;
           }
-          .nav-buttons { width: 100%; justify-content: center; order: 2; }
-          .nav-logo { order: 1; width: 100%; justify-content: space-between; }
-          .nav-user-block { width: 100%; justify-content: space-between; order: 3; display: flex !important; }
+          /* Центрируем логотип */
+          .nav-logo { order: 1; display: flex !important; justify-content: center; width: 100%; }
+          
+          /* Центрируем кнопки навигации */
+          .nav-buttons { order: 2; width: 100%; justify-content: center; }
+          
+          /* Блок пользователя и выхода по центру */
+          .nav-user-block { 
+            order: 3; 
+            width: 100%; 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
+            gap: 15px !important;
+            padding-top: 5px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+          }
         }
       `}</style>
 
