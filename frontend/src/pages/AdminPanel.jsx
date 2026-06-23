@@ -343,33 +343,25 @@ const [showManagePanel, setShowManagePanel] = useState(false);
 
        <div>
   <div
-    style={
-      isMobile
-        ? {
-            overflow: 'auto',
-            width: '100%',
-            height: '80vh'
-          }
-        : {}
-    }
-  >
-    <div
-  style={{
-    overflow: 'auto',
-    width: '100%',
-    height: isMobile ? '80vh' : '520px',
-    WebkitOverflowScrolling: 'touch'
-  }}
+  style={
+    isMobile
+      ? {
+          overflow: 'auto',
+          width: '100%',
+          height: '80vh'
+        }
+      : {}
+  }
 >
-  {/* ВОТ ЭТО ВАЖНО — большая сцена */}
   <div
     style={{
       position: 'relative',
+      height: isMobile ? '80vh' : '520px',
       width: isMobile ? '1200px' : '100%',
-      height: isMobile ? '900px' : '520px',
       background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
       border: `1px solid rgba(201,168,76,0.2)`,
-      borderRadius: '4px'
+      borderRadius: '4px',
+      overflow: 'hidden'
     }}
     onDragOver={e => e.preventDefault()}
     onDrop={handleDrop}
