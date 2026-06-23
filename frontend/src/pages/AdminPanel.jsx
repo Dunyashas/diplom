@@ -347,31 +347,23 @@ useEffect(() => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
 
        <div>
-  <div
-    style={
-      isMobile
-        ? {
-            overflow: 'auto',
-            width: '100%',
-            height: '80vh'
-          }
-        : {}
-    }
-  >
-    <div
+  
+   
+ <div
   style={{
-    overflow: 'auto',
     width: '100%',
-    height: isMobile ? '80vh' : '520px',
-    WebkitOverflowScrolling: 'touch'
+    height: '80vh',
+    overflow: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    borderRadius: '4px'
   }}
 >
-  {/* ВОТ ЭТО ВАЖНО — большая сцена */}
+  {/* сцена */}
   <div
     style={{
       position: 'relative',
-      width: isMobile ? '1200px' : '100%',
-      height: isMobile ? '900px' : '520px',
+      width: '1200px',
+      height: '900px',
       background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
       border: `1px solid rgba(201,168,76,0.2)`,
       borderRadius: '4px'
