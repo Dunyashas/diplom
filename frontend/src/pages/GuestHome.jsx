@@ -120,37 +120,73 @@ export default function GuestHome({ onNavigate }) {
       <div style={{ width: '100%', maxWidth: '100vw', padding: '24px 6%', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
-        {step < 4 && (
- <div style={{
-    width: '95%',               // Одинаковая ширина с Navbar
-    maxWidth: '1400px',         // Одинаковая макс. ширина
-    margin: '0 auto 32px auto', // Центрируем
-    boxSizing: 'border-box'
-  }}>
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      background: 'rgba(255,255,255,0.02)', 
-      padding: '16px 24px', 
-      borderRadius: '6px', 
-      border: '1px solid rgba(255,255,255,0.04)' 
-    }}>
+{step < 4 && (
+  <div
+    style={{
+      width: '95%',
+      maxWidth: '1400px',
+      margin: '0 auto 32px auto',
+      boxSizing: 'border-box'
+    }}
+  >
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: 'rgba(255,255,255,0.02)',
+        padding: '16px 24px',
+        borderRadius: '6px',
+        border: '1px solid rgba(255,255,255,0.04)'
+      }}
+    >
       {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
         const s = i + 1;
         const active = step === s;
         const done = step > s;
+
         return (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: done || active ? 1 : 0.3 }}>
-            <div style={{
-              width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '600',
-              background: done ? GOLD : 'transparent',
-              border: `2px solid ${done || active ? GOLD : 'rgba(255,255,255,0.2)'}`,
-              color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
-            }}>
+          <div
+            key={s}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              opacity: done || active ? 1 : 0.3
+            }}
+          >
+            <div
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: '600',
+                background: done ? GOLD : 'transparent',
+                border: `2px solid ${
+                  done || active ? GOLD : 'rgba(255,255,255,0.2)'
+                }`,
+                color: done
+                  ? '#000'
+                  : active
+                  ? GOLD
+                  : 'rgba(255,255,255,0.4)'
+              }}
+            >
               {done ? '✓' : s}
             </div>
-            <span style={{ fontSize: '14px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
+
+            <span
+              style={{
+                fontSize: '14px',
+                color: active ? '#fff' : 'rgba(255,255,255,0.5)'
+              }}
+            >
+              {label}
+            </span>
           </div>
         );
       })}
@@ -372,7 +408,7 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textHighlight: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
+         <div style={{ textAlign: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
             <div style={{ fontSize: '54px', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: '24px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', marginBottom: '4px' }}>
