@@ -14,10 +14,14 @@ function Router() {
   if (user.role === 'ADMIN') return <AdminPanel />;
 
   return (
-    <>
-      {page === 'home' && <GuestHome onNavigate={setPage} />}
-      {page === 'reservations' && <MyReservations onNavigate={setPage} />}
-    </>
+    <div className="tg-page-wrapper" style={{ background: '#0f0f0f', minHeight: '100vh' }}>
+      <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
+        
+        {page === 'home' && <GuestHome onNavigate={setPage} />}
+        {page === 'reservations' && <MyReservations onNavigate={setPage} />}
+        
+      </div>
+    </div>
   );
 }
 
