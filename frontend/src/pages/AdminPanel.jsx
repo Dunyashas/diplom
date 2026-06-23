@@ -242,16 +242,21 @@ function TablesTab() {
   const [form, setForm] = useState({ number: '', capacity: 4, shape: 'rectangle' });
   const [selectedTable, setSelectedTable] = useState(null);
   const [error, setError] = useState('');
+
   const isDragging = useRef(false);
-  const isMobile = window.innerWidth <= 768;
+  const [showManagePanel, setShowManagePanel] = useState(false);
 
-const [showManagePanel, setShowManagePanel] = useState(false);
+  // 👇 ВОТ СЮДА ДОБАВЛЯЕШЬ
+  const [isMobile, setIsMobile] = useState(
+  () => window.innerWidth <= 768
+);
 
-  const load = async () => {
-    const data = await api.getTables();
-    setTables(Array.isArray(data) ? data : []);
-  };
-  useEffect(() => { load(); }, []);
+useEffect(() => {
+  const check = () => setIsMobile(window.innerWidth <= 768);
+
+  window.addEventListener('resize', check);
+  return () => window.removeEventListener('resize', check);
+}, []);
 
   const handleDrop = async (e) => {
     const tableId = e.dataTransfer.getData('tableId');
