@@ -38,11 +38,15 @@ import { useAuth } from '../context/AuthContext';const GOLD = '#c9a84c';export d
 
         }
 
-        @media (min-width: 601px) {
-
-          .nav-container { max-width: 1200px; }
-
-        }
+      
+@media (min-width: 601px) {
+  .nav-container { 
+    max-width: 1400px; 
+    width: 95%; /* ЭТО даст те самые отступы от краев, как на фото */
+    padding: 0; /* Убираем 6%, чтобы ширина управлялась через width: 95% */
+    margin: 0 auto; 
+  }
+}
 
         @media (max-width: 600px) {
 
