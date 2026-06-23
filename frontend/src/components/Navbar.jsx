@@ -31,8 +31,13 @@ export default function Navbar({ onNavigate, activePage }) {
           .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 6%;
+            padding: 0 40px;
             box-sizing: border-box;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 120px;
           }
         }
 
