@@ -16,7 +16,7 @@ export default function Navbar({ onNavigate, activePage }) {
       <style>{`
         .nav-container {
           max-width: 100%; 
-          padding: 0 6%; /* Отступ как у основного контента */
+          padding: 0 6%; 
           margin: 0 auto; 
           display: flex; 
           align-items: center; 
@@ -25,7 +25,6 @@ export default function Navbar({ onNavigate, activePage }) {
         }
         .nav-buttons { display: flex; gap: 8px; }
         
-        /* Мобильный вид */
         @media (max-width: 600px) {
           .nav-container { 
             padding: 0 4%; 
@@ -36,14 +35,8 @@ export default function Navbar({ onNavigate, activePage }) {
             gap: 15px;
           }
           .nav-buttons { width: 100%; justify-content: center; order: 2; }
-          .nav-logo { order: 1; }
-          .nav-user-block { 
-            width: 100%; 
-            justify-content: space-between; 
-            order: 3; 
-            display: flex !important; 
-          }
-          .nav-user-info { display: block !important; }
+          .nav-logo { order: 1; width: 100%; justify-content: space-between; }
+          .nav-user-block { width: 100%; justify-content: space-between; order: 3; display: flex !important; }
         }
       `}</style>
 
@@ -67,7 +60,7 @@ export default function Navbar({ onNavigate, activePage }) {
 
         {/* Профиль и Выход */}
         <div className="nav-user-block" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="nav-user-info" style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{user?.firstName}</div>
             <div style={{ fontSize: '10px', color: GOLD, letterSpacing: '1px' }}>{user?.role === 'ADMIN' ? 'АДМИНИСТРАТОР' : 'ГОСТЬ'}</div>
           </div>
