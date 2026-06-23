@@ -11,21 +11,26 @@ export default function Navbar({ onNavigate, activePage }) {
       borderBottom: '1px solid rgba(201,168,76,0.2)',
       backdropFilter: 'blur(10px)',
       position: 'sticky', top: 0, zIndex: 100,
-      padding: '0 24px'
+      width: '100%'
     }}>
       <style>{`
         .nav-container {
-          max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px;
+          max-width: 100%; 
+          padding: 0 6%; /* Тот же отступ, что и в основном контенте */
+          margin: 0 auto; 
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between; 
+          height: 70px;
         }
         .nav-buttons { display: flex; gap: 8px; }
         
         /* Мобильный вид */
         @media (max-width: 600px) {
-          .nav-container { height: auto; padding: 10px 0; flex-direction: column; gap: 12px; }
-          .nav-logo { order: 1; }
-          .nav-buttons { order: 2; width: 100%; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-          .nav-user-block { order: 3; width: 100%; justify-content: center; }
-          .nav-user-info { display: none; }
+          .nav-container { padding: 0 4%; height: auto; padding-top: 10px; padding-bottom: 10px; flex-direction: column; gap: 12px;}
+          .nav-buttons { width: 100%; justify-content: center; margin-bottom: 10px; }
+          .nav-user-block { width: 100%; justify-content: space-between; }
+          .nav-user-info { display: block !important; } /* Имя всегда видно */
         }
       `}</style>
 
@@ -50,7 +55,7 @@ export default function Navbar({ onNavigate, activePage }) {
         {/* Профиль и Выход */}
         <div className="nav-user-block" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div className="nav-user-info" style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '13px', color: '#fff' }}>{user?.firstName}</div>
+            <div style={{ fontSize: '13px', color: '#fff', fontWeight: 'bold' }}>{user?.firstName}</div>
             <div style={{ fontSize: '10px', color: GOLD, letterSpacing: '1px' }}>{user?.role === 'ADMIN' ? 'АДМИНИСТРАТОР' : 'ГОСТЬ'}</div>
           </div>
           <button onClick={logout} style={{
@@ -61,19 +66,5 @@ export default function Navbar({ onNavigate, activePage }) {
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavBtn({ label, onClick, active }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '8px 16px', border: 'none', borderRadius: '4px',
-      background: active ? 'rgba(201,168,76,0.15)' : 'transparent',
-      color: active ? GOLD : 'rgba(255,255,255,0.7)',
-      fontSize: '12px', cursor: 'pointer', fontFamily: 'Georgia',
-      textTransform: 'uppercase', letterSpacing: '1px', transition: '0.2s'
-    }}>
-      {label}
-    </button>
   );
 }
