@@ -14,13 +14,12 @@ function Router() {
   if (user.role === 'ADMIN') return <AdminPanel />;
 
   return (
-    <div className="tg-page-wrapper" style={{ background: '#0f0f0f', minHeight: '100vh' }}>
-      <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
+    // Убрали жесткое ограничение ширины, чтобы на ПК всё раскрывалось на 100%
+    <div className="tg-page-wrapper" style={{ background: '#0f0f0f', minHeight: '100vh', width: '100%' }}>
+      
+      {page === 'home' && <GuestHome onNavigate={setPage} />}
+      {page === 'reservations' && <MyReservations onNavigate={setPage} />}
         
-        {page === 'home' && <GuestHome onNavigate={setPage} />}
-        {page === 'reservations' && <MyReservations onNavigate={setPage} />}
-        
-      </div>
     </div>
   );
 }
