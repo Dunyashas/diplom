@@ -243,8 +243,6 @@ function TablesTab() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [error, setError] = useState('');
   const isDragging = useRef(false);
-  const isMobile = window.innerWidth <= 768;
-  const [showManagePanel, setShowManagePanel] = useState(false);
 
   const load = async () => {
     const data = await api.getTables();
@@ -338,18 +336,11 @@ function TablesTab() {
   return (
     <div>
       <PageTitle title="Карта зала" subtitle="Перетаскивайте столы · Тяните за ↘ угол чтобы изменить размер" />
-      {!isMobile && (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px'
-    }}
-  >
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
 
         <div>
           <div style={{
-            position: 'relative', height: isMobile ? '80vh' : '520px',
+            position: 'relative', height: '520px',
             background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
             border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '4px', overflow: 'hidden'
           }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
@@ -523,7 +514,6 @@ function TablesTab() {
             </div>
           </div>
         </div>
-       )}
       </div>
     </div>
   );
