@@ -117,7 +117,7 @@ export default function GuestHome({ onNavigate }) {
       <Navbar onNavigate={onNavigate} />
 
       {/* Основной контент */}
-      <div style={{ width: '100%', maxWidth: '100vw', padding: '24px 6%', boxSizing: 'border-box' }}>
+      <div style={{width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '24px 20px', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
 {step < 4 && (
