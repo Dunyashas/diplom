@@ -121,9 +121,9 @@ export default function GuestHome({ onNavigate }) {
 
         {/* СТЕППЕР */}
         {step < 4 && (
-  <div style={{
-    width: '95%',               // ПК: занимает 95% ширины (как и Navbar)
-    maxWidth: '1400px',         // Ограничитель для очень широких экранов
+ <div style={{
+    width: '95%',               // Одинаковая ширина с Navbar
+    maxWidth: '1400px',         // Одинаковая макс. ширина
     margin: '0 auto 32px auto', // Центрируем
     boxSizing: 'border-box'
   }}>
