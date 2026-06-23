@@ -14,7 +14,7 @@ function Router() {
   if (user.role === 'ADMIN') return <AdminPanel />;
 
   return (
-    // Убрали жесткое ограничение ширины, чтобы на ПК всё раскрывалось на 100%
+    // Убираем центрирование отсюда, чтобы родительский блок мог занимать честные 100% экрана ПК
     <div className="tg-page-wrapper" style={{ background: '#0f0f0f', minHeight: '100vh', width: '100%' }}>
       
       {page === 'home' && <GuestHome onNavigate={setPage} />}
