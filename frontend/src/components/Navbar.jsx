@@ -37,7 +37,7 @@ export default function Navbar({ onNavigate, activePage }) {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 220px;
+            gap: 350px;
           }
         }
 
