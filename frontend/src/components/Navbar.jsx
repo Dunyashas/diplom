@@ -41,6 +41,17 @@ export default function Navbar({ onNavigate, activePage }) {
           }
         }
 
+        @media (min-width: 601px) {
+          .nav-logo {
+              transform: translateX(-50px);
+          }
+
+          .nav-user-block {
+              transform: translateX(50px);
+          }
+        }
+
+
         @media (max-width: 600px) {
           .nav-container {
             padding: 15px 4%;
