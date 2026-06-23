@@ -104,13 +104,55 @@ export default function GuestHome({ onNavigate }) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
-      {/* Сброс внешних ограничений для ПК версии */}
+      {/* Сброс внешних ограничений для ПК версии + КРАСИВЫЙ ФИКС ШАПКИ НА МОБИЛКАХ */}
       <style>{`
         #root, body, main, .app-container, [class*="container"] { 
           max-width: none !important; 
           width: 100% !important; 
           margin: 0 !important; 
           padding: 0 !important;
+        }
+
+        /* Находим панель навигации Navbar на мобилках */
+        @media (max-width: 600px) {
+          nav, navbar, [class*="Navbar"], header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 12px 16px !important;
+            gap: 12px !important;
+          }
+
+          /* Находим правый контейнер с именем пользователя и кнопкой выхода */
+          nav > div:last-child, 
+          navbar > div:last-child, 
+          header > div:last-child,
+          [class*="Navbar"] > div:last-child {
+            display: flex !important;
+            flex-direction: column !important; /* Выстраиваем имя и кнопку друг под другом */
+            align-items: flex-end !important;   /* Прижимаем их по правому краю */
+            gap: 4px !important;                /* Небольшой отступ между ними */
+            flex-shrink: 0 !important;
+          }
+
+          /* Делаем шрифт текста чуть аккуратнее, чтобы не ломался */
+          nav span, navbar span, header span {
+            font-size: 13px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+          }
+
+          /* Делаем саму кнопку "Выйти" стильной, маленькой и ровной */
+          nav button, navbar button, header button {
+            font-size: 11px !important;
+            padding: 3px 10px !important;
+            height: auto !important;
+            width: auto !important;
+            min-width: 65px !important;
+            margin: 0 !important;
+            cursor: pointer !important;
+            border-radius: 4px !important;
+          }
         }
       `}</style>
 
@@ -261,7 +303,7 @@ export default function GuestHome({ onNavigate }) {
             </FormGroup>
 
             <FormGroup label="Комментарий">
-              <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Пожелания, аллергии..." rows={3} style={{ ...inputStyle, resize: 'none' }} />
+              <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Пожелания, allergy..." rows={3} style={{ ...inputStyle, resize: 'none' }} />
             </FormGroup>
 
             {error && <ErrorBox msg={error} />}
