@@ -92,7 +92,7 @@ export default function GuestHome({ onNavigate }) {
     } catch (err) {
       setError(err.message);
     } finally {
-      loading(false);
+      setLoading(false);
     }
   };
 
@@ -107,10 +107,9 @@ export default function GuestHome({ onNavigate }) {
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
       <Navbar onNavigate={onNavigate} />
 
-      {/* Ограничиваем контент под экран мобильного */}
       <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto', padding: '16px 12px' }}>
 
-        {/* СТЕППЕР: Компактный мобильный вид */}
+        {/* СТЕППЕР */}
         {step < 4 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px' }}>
             {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
@@ -134,11 +133,11 @@ export default function GuestHome({ onNavigate }) {
           </div>
         )}
 
-        {/* ШАГ 1: КАРТА СТОЛОВ */}
+        {/* ШАГ 1: КАРТА СТОЛОВ С ДВУХМЕРНЫМ СКРОЛЛОМ */}
         {step === 1 && (
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '16px' }}>Проведите пальцем для обзора всего зала</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '16px' }}>Проведите пальцем в любую сторону для обзора зала</p>
 
             {/* Легенда */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -150,9 +149,19 @@ export default function GuestHome({ onNavigate }) {
               ))}
             </div>
 
-            {/* Контейнер горизонтального скролла для карты */}
-            <div style={{ width: '100%', overflowX: 'auto', border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '6px', background: '#111', marginBottom: '16px' }}>
-              <div style={{ position: 'relative', width: '560px', height: '380px', background: 'linear-gradient(180deg, #161616 0%, #111 100%)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' }}>
+            {/* Контейнер двухмерного скролла (overflow: 'auto' вместо overflowX) */}
+            <div style={{ 
+              width: '100%', 
+              height: '400px', 
+              overflow: 'auto', 
+              border: `1px solid rgba(201,168,76,0.2)`, 
+              borderRadius: '6px', 
+              background: '#111', 
+              marginBottom: '16px',
+              WebkitOverflowScrolling: 'touch' 
+            }}>
+              {/* Площадь карты увеличена по вертикали до 600px */}
+              <div style={{ position: 'relative', width: '560px', height: '600px', background: 'linear-gradient(180deg, #161616 0%, #111 100%)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' }}>
                 
                 <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '9px', padding: '4px 0', borderRadius: '0 0 4px 4px' }}>ВХОД</div>
                 
@@ -162,7 +171,6 @@ export default function GuestHome({ onNavigate }) {
                   const color = isSelected ? statusColors.selected : isBusy ? statusColors.busy : statusColors.free;
                   const isCircle = table.shape === 'circle';
 
-                  // Делаем чуть компактнее, но удобно для клика пальцем
                   const w = isCircle ? 65 : 80;
                   const h = 60;
 
@@ -248,11 +256,9 @@ export default function GuestHome({ onNavigate }) {
             <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Предзаказ блюд</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '24px' }}>По желанию — можно заказать на месте</p>
 
-            {/* Стек меню (одна колонка под мобильные) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
               <div>
-                {menu.length === 0 && <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', padding: '24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px' }}>Меню пустует</div>}
+                {menu.length === 0 && <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', padding: '24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px' }}>Menu empty</div>}
                 
                 {Object.entries(menuByCategory).map(([category, items]) => (
                   <div key={category} style={{ marginBottom: '20px' }}>
@@ -289,7 +295,7 @@ export default function GuestHome({ onNavigate }) {
                 ))}
               </div>
 
-              {/* Сводка корзины (снизу) */}
+              {/* Сводка корзины */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '16px' }}>
                 <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '12px' }}>Итого бронирования</div>
                 
@@ -319,7 +325,6 @@ export default function GuestHome({ onNavigate }) {
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
         )}
@@ -345,7 +350,6 @@ export default function GuestHome({ onNavigate }) {
   );
 }
 
-// Вспомогательные мини-компоненты
 function FormGroup({ label, children }) {
   return (
     <div style={{ marginBottom: '16px' }}>
@@ -374,11 +378,10 @@ function ErrorBox({ msg }) {
   );
 }
 
-// Мобильные базовые инлайны
 const inputStyle = {
   width: '100%', padding: '12px', boxSizing: 'border-box',
   background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)',
-  borderRadius: '6px', color: '#fff', fontSize: '16px', outline: 'none', // 16px защищает от зума на iOS
+  borderRadius: '6px', color: '#fff', fontSize: '16px', outline: 'none',
   colorScheme: 'dark'
 };
 
