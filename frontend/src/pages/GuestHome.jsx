@@ -123,49 +123,48 @@ export default function GuestHome({ onNavigate }) {
 
         {/* СТЕППЕР */}
         {step < 4 && (
-          <div style={{
-            width: '100%', 
-            padding: '0 6%', 
-            boxSizing: 'border-box', 
-            maxWidth: '1200px', 
-            margin: '0 auto 32px auto'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              background: 'rgba(255,255,255,0.02)', 
-      // Используем адаптивный padding: 12px по бокам на мобильных, 24px на ПК
-              padding: '16px clamp(12px, 2vw, 24px)', 
-              borderRadius: '6px', 
-              border: '1px solid rgba(255,255,255,0.04)' 
+         <div style={{
+    width: '100%',
+    padding: '0 6%',           // Тот же отступ, что и в Navbar
+    boxSizing: 'border-box',
+    maxWidth: '1200px',        // Та же max-width, что и в Navbar
+    margin: '0 auto 32px auto' // Центрирование
+  }}>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '16px 0',       // Отступы внутри полосы
+      borderBottom: '1px solid rgba(255,255,255,0.05)' // Тонкая линия как на фото
+    }}>
+      {['Выбор стола', 'Дата и время', 'Предзаказ меню', 'Подтверждение'].map((label, i) => {
+        const s = i + 1;
+        const active = step === s;
+        const done = step > s;
+        return (
+          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '24px', height: '24px', borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '12px', fontWeight: 'bold',
+              background: done ? GOLD : 'transparent',
+              border: `2px solid ${active || done ? GOLD : 'rgba(255,255,255,0.2)'}`,
+              color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
             }}>
-              {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => { 
-                const s = i + 1; 
-                const active = step === s; 
-                const done = step > s;
-                return (
-                  <div key={s} style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px', 
-                    opacity: done || active ? 1 : 0.3 
-                  }}>
-                    <div style={{
-                      width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '600',
-                      background: done ? GOLD : 'transparent',
-                      border: `2px solid ${done || active ? GOLD : 'rgba(255,255,255,0.2)'}`,
-                      color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
-                    }}>
-                      {done ? '✓' : s}
-                    </div>
-                    {/* Скрываем текст на очень маленьких экранах, если нужно, или оставляем */}
-                    <span style={{ fontSize: '14px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
-                  </div>
-                );
-              })}
+              {done ? '✓' : s}
             </div>
+            <span style={{ 
+              fontSize: '14px', 
+              color: active ? '#fff' : 'rgba(255,255,255,0.5)',
+              fontWeight: active ? '600' : 'normal'
+            }}>
+              {label}
+            </span>
           </div>
+        );
+      })}
+    </div>
+  </div>
         )}
 
         {/* ШАГ 1: КАРТА СТОЛОВ */}
