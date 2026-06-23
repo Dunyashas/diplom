@@ -113,45 +113,92 @@ export default function GuestHome({ onNavigate }) {
           padding: 0 !important;
         }
 
-        /* Находим панель навигации Navbar на мобилках */
+        /* Полная пересборка Navbar на мобильных экранах */
         @media (max-width: 600px) {
           nav, navbar, [class*="Navbar"], header {
             display: flex !important;
+            flex-direction: column !important; /* Строим блоки сверху вниз */
             align-items: center !important;
-            justify-content: space-between !important;
-            padding: 12px 16px !important;
+            justify-content: center !important;
+            padding: 16px 16px 12px 16px !important;
             gap: 12px !important;
+            position: relative !important; /* Для абсолютного позиционирования имени */
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
 
-          /* Находим правый контейнер с именем пользователя и кнопкой выхода */
+          /* Логотип Elegance Resto */
+          nav > a:first-child, nav > div:first-child, [class*="logo"] {
+            margin: 0 auto !important;
+            display: block !important;
+            text-align: center !important;
+          }
+
+          /* Блок навигации со ссылками (Бронирование / Мои Брони) */
+          nav > div:not(:last-child), [class*="links"], [class*="menu"] {
+            display: flex !important;
+            flex-direction: row !important; /* Выстраиваем строго в линию горизонтально */
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 24px !important; /* Красивое расстояние между ссылками */
+            width: 100% !important;
+            margin: 4px 0 0 0 !important;
+          }
+
+          /* Чтобы ссылки шли ровно и текст не прыгал */
+          nav a, [class*="links"] a, [class*="nav"] button:not([onClick*="logout"]) {
+            white-space: nowrap !important;
+            font-size: 14px !important;
+            display: inline-block !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            text-decoration: none !important;
+          }
+
+          /* Фиксируем блок пользователя (Даня Гость + Выйти) в правом углу */
           nav > div:last-child, 
           navbar > div:last-child, 
           header > div:last-child,
           [class*="Navbar"] > div:last-child {
+            position: absolute !important;
+            right: 16px !important;
+            top: 14px !important; /* На уровне логотипа */
             display: flex !important;
-            flex-direction: column !important; /* Выстраиваем имя и кнопку друг под другом */
-            align-items: flex-end !important;   /* Прижимаем их по правому краю */
-            gap: 4px !important;                /* Небольшой отступ между ними */
-            flex-shrink: 0 !important;
+            flex-direction: column !important; /* Текст сверху, кнопка снизу */
+            align-items: flex-end !important;   /* Прижимаем к правому краю */
+            gap: 4px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            z-index: 10 !important;
           }
 
-          /* Делаем шрифт текста чуть аккуратнее, чтобы не ломался */
+          /* Текст пользователя (Даня Гость) */
+          nav > div:last-child span,
+          [class*="Navbar"] > div:last-child span,
           nav span, navbar span, header span {
-            font-size: 13px !important;
+            font-size: 12px !important;
             line-height: 1.2 !important;
-            white-space: nowrap !important;
+            white-space: nowrap !important; /* Больше "Гость" не упадёт на новую строку */
+            text-align: right !important;
+            color: #fff !important;
           }
 
-          /* Делаем саму кнопку "Выйти" стильной, маленькой и ровной */
+          /* Кнопка "Выйти" строго под именем */
+          nav > div:last-child button,
+          [class*="Navbar"] > div:last-child button,
           nav button, navbar button, header button {
-            font-size: 11px !important;
-            padding: 3px 10px !important;
+            font-size: 10px !important;
+            padding: 2px 8px !important;
             height: auto !important;
             width: auto !important;
-            min-width: 65px !important;
+            min-width: 55px !important;
+            max-width: 75px !important;
             margin: 0 !important;
-            cursor: pointer !important;
+            text-align: center !important;
             border-radius: 4px !important;
+            border: 1px solid rgba(255,255,255,0.25) !important;
+            background: transparent !important;
+            color: rgba(255,255,255,0.8) !important;
+            cursor: pointer !important;
           }
         }
       `}</style>
