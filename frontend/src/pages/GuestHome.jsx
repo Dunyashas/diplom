@@ -16,10 +16,9 @@ export default function GuestHome({ onNavigate }) {
   const [menu, setMenu] = useState([]);
   const [menuByCategory, setMenuByCategory] = useState({});
   const [selectedTable, setSelectedTable] = useState(null);
-  const [cart, setCart] = useState({}); // { menuItemId: quantity }
-  const [step, setStep] = useState(1); // 1=карта, 2=детали, 3=меню, 4=успех
+  const [cart, setCart] = useState({});
+  const [step, setStep] = useState(1);
 
-  // Форма
   const [reserveDate, setReserveDate] = useState('');
   const [reserveTime, setReserveTime] = useState('19:00');
   const [duration, setDuration] = useState(2);
@@ -105,10 +104,20 @@ export default function GuestHome({ onNavigate }) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
+      {/* Сброс внешних ограничений для ПК версии */}
+      <style>{`
+        #root, body, main, .app-container, [class*="container"] { 
+          max-width: none !important; 
+          width: 100% !important; 
+          margin: 0 !important; 
+          padding: 0 !important;
+        }
+      `}</style>
+
       <Navbar onNavigate={onNavigate} />
 
-      {/* Контейнер растягивается на всю ширину ПК, как на фото 2 */}
-      <div style={{ width: '100%', padding: '24px 4%', boxSizing: 'border-box' }}>
+      {/* Основной контент */}
+      <div style={{ width: '100%', maxWidth: '100vw', padding: '24px 6%', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
         {step < 4 && (
@@ -152,26 +161,29 @@ export default function GuestHome({ onNavigate }) {
               ))}
             </div>
 
-            {/* Окно просмотра карты */}
+            {/* Окно просмотра карты (свайпы на телефонах) */}
             <div style={{ 
               width: '100%', 
-              height: '60vh', 
-              minHeight: '450px',
+              height: '65vh', 
+              minHeight: '500px',
               overflow: 'auto', 
               border: `1px solid rgba(201,168,76,0.15)`, 
               borderRadius: '8px', 
               background: '#111', 
               marginBottom: '24px',
-              WebkitOverflowScrolling: 'touch' 
+              position: 'relative',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'auto'
             }}>
-              {/* Исправлено: теперь на ПК занимает честные 100% ширины экрана без ограничений! */}
+              {/* Фиксированная подложка на 1000px спасает пропорции и включает скролл */}
               <div style={{ 
                 position: 'relative', 
-                width: '100%',
-                minWidth: '100%',
+                width: '1000px', 
                 height: '100%', 
+                minHeight: '480px',
                 background: 'linear-gradient(180deg, #161616 0%, #111 100%)', 
-                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' 
+                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)',
+                margin: '0 auto'
               }}>
                 
                 <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '6px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
@@ -182,8 +194,8 @@ export default function GuestHome({ onNavigate }) {
                   const color = isSelected ? statusColors.selected : isBusy ? statusColors.busy : statusColors.free;
                   const isCircle = table.shape === 'circle';
 
-                  const w = isCircle ? 65 : 80;
-                  const h = 60;
+                  const w = isCircle ? 70 : 85;
+                  const h = 65;
 
                   return (
                     <div key={table.id}
@@ -203,8 +215,8 @@ export default function GuestHome({ onNavigate }) {
                         userSelect: 'none',
                         transition: 'all 0.15s'
                       }}>
-                      <span style={{ fontWeight: '700', fontSize: '13px' }}>№{table.number}</span>
-                      <span style={{ fontSize: '10px', opacity: 0.8 }}>{table.capacity} мест</span>
+                      <span style={{ fontWeight: '700', fontSize: '14px' }}>№{table.number}</span>
+                      <span style={{ fontSize: '11px', opacity: 0.8 }}>{table.capacity} мест</span>
                     </div>
                   );
                 })}
@@ -344,7 +356,7 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textAlign: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{ textHighlight: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
             <div style={{ fontSize: '54px', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: '24px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', marginBottom: '4px' }}>
