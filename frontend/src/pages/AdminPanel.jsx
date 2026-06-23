@@ -244,8 +244,7 @@ function TablesTab() {
   const [error, setError] = useState('');
   const isDragging = useRef(false);
   const isMobile = window.innerWidth <= 768;
-
-const [showManagePanel, setShowManagePanel] = useState(false);
+  const [showManagePanel, setShowManagePanel] = useState(false);
 
   const load = async () => {
     const data = await api.getTables();
@@ -339,34 +338,23 @@ const [showManagePanel, setShowManagePanel] = useState(false);
   return (
     <div>
       <PageTitle title="Карта зала" subtitle="Перетаскивайте столы · Тяните за ↘ угол чтобы изменить размер" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
-
-       <div>
-  <div
-  style={
-    isMobile
-      ? {
-          overflow: 'auto',
-          width: '100%',
-          height: '80vh'
-        }
-      : {}
-  }
->
+      {!isMobile && (
   <div
     style={{
-      position: 'relative',
-      height: isMobile ? '80vh' : '520px',
-      width: isMobile ? '1200px' : '100%',
-      background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
-      border: `1px solid rgba(201,168,76,0.2)`,
-      borderRadius: '4px',
-      overflow: 'hidden'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px'
     }}
-    onDragOver={e => e.preventDefault()}
-    onDrop={handleDrop}
   >
-              
+
+        <div>
+          <div style={{
+            position: 'relative', height: isMobile ? '80vh' : '520px',
+            background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
+            border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '4px', overflow: 'hidden'
+          }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
+
+            <div style={{ position: 'absolute', top: 0, left: '44%', width: '12%', background: 'rgba(201,168,76,0.1)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '5px 0', letterSpacing: '2px', borderRadius: '0 0 4px 4px' }}>
               ВХОД
             </div>
 
@@ -443,24 +431,14 @@ const [showManagePanel, setShowManagePanel] = useState(false);
                 Добавьте первый стол →
               </div>
             )}
-          </div> {/* карта */}
-          </div> {/* scroll wrapper */}
+          </div>
           <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>
             Перетащите стол чтобы переместить · Нажмите чтобы выбрать · Тяните ◢ чтобы изменить размер
           </p>
         </div>
 
-        
-       {!isMobile && (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px'
-    }}
-  >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-          
           {selectedTable ? (
             <div style={{ background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.3)`, borderRadius: '4px', padding: '20px' }}>
               <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>
