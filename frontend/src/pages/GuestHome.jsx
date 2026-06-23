@@ -77,7 +77,7 @@ export default function GuestHome({ onNavigate }) {
 
   const handleBook = async () => {
     if (!reserveDate || !reserveTime) { setError('Укажите дату и время'); return; }
-    loading(true); setError('');
+    setLoading(true); setError('');
     try {
       const start = new Date(`${reserveDate}T${reserveTime}`);
       await api.reserve({
@@ -91,7 +91,7 @@ export default function GuestHome({ onNavigate }) {
     } catch (err) {
       setError(err.message);
     } finally {
-      loading(false);
+      setLoading(false);
     }
   };
 
@@ -104,8 +104,7 @@ export default function GuestHome({ onNavigate }) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
-      
-      {/* Убрали старый тяжелый CSS для набара, оставили только растягивание контейнеров на 100% */}
+      {/* Сброс внешних ограничений для ПК версии */}
       <style>{`
         #root, body, main, .app-container, [class*="container"] { 
           max-width: none !important; 
@@ -115,56 +114,33 @@ export default function GuestHome({ onNavigate }) {
         }
       `}</style>
 
-      {/* Передаем навигацию и активную страницу "home" */}
-      <Navbar onNavigate={onNavigate} activePage="home" />
+      <Navbar onNavigate={onNavigate} />
 
       {/* Основной контент */}
       <div style={{ width: '100%', maxWidth: '100vw', padding: '24px 6%', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
         {step < 4 && (
-         <div style={{
-    width: '100%',
-    padding: '0 6%',           // Тот же отступ, что и в Navbar
-    boxSizing: 'border-box',
-    maxWidth: '1200px',        // Та же max-width, что и в Navbar
-    margin: '0 auto 32px auto' // Центрирование
-  }}>
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '16px 0',       // Отступы внутри полосы
-      borderBottom: '1px solid rgba(255,255,255,0.05)' // Тонкая линия как на фото
-    }}>
-      {['Выбор стола', 'Дата и время', 'Предзаказ меню', 'Подтверждение'].map((label, i) => {
-        const s = i + 1;
-        const active = step === s;
-        const done = step > s;
-        return (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '24px', height: '24px', borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '12px', fontWeight: 'bold',
-              background: done ? GOLD : 'transparent',
-              border: `2px solid ${active || done ? GOLD : 'rgba(255,255,255,0.2)'}`,
-              color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
-            }}>
-              {done ? '✓' : s}
-            </div>
-            <span style={{ 
-              fontSize: '14px', 
-              color: active ? '#fff' : 'rgba(255,255,255,0.5)',
-              fontWeight: active ? '600' : 'normal'
-            }}>
-              {label}
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', background: 'rgba(255,255,255,0.02)', padding: '16px 24px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
+            {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
+              const s = i + 1;
+              const active = step === s;
+              const done = step > s;
+              return (
+                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: done || active ? 1 : 0.3 }}>
+                  <div style={{
+                    width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '600',
+                    background: done ? GOLD : 'transparent',
+                    border: `2px solid ${done || active ? GOLD : 'rgba(255,255,255,0.2)'}`,
+                    color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
+                  }}>
+                    {done ? '✓' : s}
+                  </div>
+                  <span style={{ fontSize: '14px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
-    </div>
-  </div>
         )}
 
         {/* ШАГ 1: КАРТА СТОЛОВ */}
@@ -285,7 +261,7 @@ export default function GuestHome({ onNavigate }) {
             </FormGroup>
 
             <FormGroup label="Комментарий">
-              <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Пожелания, allergy..." rows={3} style={{ ...inputStyle, resize: 'none' }} />
+              <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Пожелания, аллергии..." rows={3} style={{ ...inputStyle, resize: 'none' }} />
             </FormGroup>
 
             {error && <ErrorBox msg={error} />}
@@ -380,7 +356,7 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textAlign: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{ textHighlight: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
             <div style={{ fontSize: '54px', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: '24px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', marginBottom: '4px' }}>
@@ -410,7 +386,6 @@ function FormGroup({ label, children }) {
   );
 }
 
-// Пофиксили опечатку в стилях textHighlight -> textAlign
 function SummaryRow({ label, value, gold }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
