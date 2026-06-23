@@ -123,8 +123,9 @@ export default function GuestHome({ onNavigate }) {
 
         {/* СТЕППЕР */}
         {step < 4 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', background: 'rgba(255,255,255,0.02)', padding: '16px 24px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
-            {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
+{/* СТЕППЕР */}
+{step < 4 && (
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', background: 'rgba(255,255,255,0.02)', padding: '16px 4%', boxSizing: 'border-box', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>            {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
               const s = i + 1;
               const active = step === s;
               const done = step > s;
