@@ -107,40 +107,43 @@ export default function GuestHome({ onNavigate }) {
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
       <Navbar onNavigate={onNavigate} />
 
-      <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto', padding: '16px 12px' }}>
+      {/* Адаптивный контейнер: на мобильных сожмется до 480px, на ПК расширится до 1000px */}
+      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '24px 16px', boxSizing: 'border-box' }}>
 
         {/* СТЕППЕР */}
         {step < 4 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: '6px' }}>
             {['Стол', 'Инфо', 'Меню', 'Финиш'].map((label, i) => {
               const s = i + 1;
               const active = step === s;
               const done = step > s;
               return (
-                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: done || active ? 1 : 0.3 }}>
+                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: done || active ? 1 : 0.3 }}>
                   <div style={{
-                    width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600',
+                    width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '600',
                     background: done ? GOLD : 'transparent',
                     border: `2px solid ${done || active ? GOLD : 'rgba(255,255,255,0.2)'}`,
                     color: done ? '#000' : active ? GOLD : 'rgba(255,255,255,0.4)'
                   }}>
                     {done ? '✓' : s}
                   </div>
-                  <span style={{ fontSize: '12px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
+                  <span style={{ fontSize: '13px', color: active ? '#fff' : 'rgba(255,255,255,0.5)' }}>{label}</span>
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* ШАГ 1: КАРТА СТОЛОВ С ДВУХМЕРНЫМ СКРОЛЛОМ */}
+        {/* ШАГ 1: КАРТА СТОЛОВ */}
         {step === 1 && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '16px' }}>Проведите пальцем в любую сторону для обзора зала</p>
+          <div style={{ width: '100%', maxWidth: '100%', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Выберите стол</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '16px' }}>
+              Используйте схему зала для выбора подходящего столика
+            </p>
 
             {/* Легенда */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
               {[['#27ae60', 'Свободен'], ['#e74c3c', 'Занят'], [GOLD, 'Выбран']].map(([color, label]) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color }} />
@@ -149,21 +152,30 @@ export default function GuestHome({ onNavigate }) {
               ))}
             </div>
 
-            {/* Контейнер двухмерного скролла (overflow: 'auto' вместо overflowX) */}
+            {/* Окно просмотра: теперь на ПК оно шире и выше, а на мобилках сохраняет внутренний скролл */}
             <div style={{ 
               width: '100%', 
-              height: '400px', 
+              height: '500px', 
+              maxHeight: '70vh',
               overflow: 'auto', 
               border: `1px solid rgba(201,168,76,0.2)`, 
-              borderRadius: '6px', 
+              borderRadius: '8px', 
               background: '#111', 
-              marginBottom: '16px',
+              marginBottom: '20px',
               WebkitOverflowScrolling: 'touch' 
             }}>
-              {/* Площадь карты увеличена по вертикали до 600px */}
-              <div style={{ position: 'relative', width: '560px', height: '600px', background: 'linear-gradient(180deg, #161616 0%, #111 100%)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' }}>
+              {/* Сама карта: на маленьких экранах она 560px (чтобы скроллить), на ПК занимает 100% контейнера */}
+              <div style={{ 
+                position: 'relative', 
+                minWidth: '100%',
+                width: '100%',
+                minHeight: '100%',
+                height: '600px', 
+                background: 'linear-gradient(180deg, #161616 0%, #111 100%)', 
+                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)' 
+              }}>
                 
-                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '9px', padding: '4px 0', borderRadius: '0 0 4px 4px' }}>ВХОД</div>
+                <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '9px', padding: '4px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
                 
                 {tables.map(table => {
                   const isSelected = selectedTable?.id === table.id;
@@ -204,12 +216,12 @@ export default function GuestHome({ onNavigate }) {
               </div>
             </div>
 
-            {/* Подтверждение стола */}
+            {/* Подтверждение стола — центрировано и адаптировано под любую ширину */}
             {selectedTable && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '6px', padding: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '6px', padding: '16px', maxWidth: '480px', margin: '0 auto' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ color: GOLD, fontWeight: '600' }}>Стол №{selectedTable.number}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', marginLeft: '8px' }}>({selectedTable.capacity} мест)</span>
+                  <span style={{ color: GOLD, fontWeight: '600', fontSize: '16px' }}>Стол №{selectedTable.number}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginLeft: '8px' }}>({selectedTable.capacity} мест)</span>
                 </div>
                 <button onClick={() => setStep(2)} style={btnStyle(GOLD, '#000')}>Продолжить →</button>
               </div>
@@ -219,7 +231,7 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 2: ДАТА И ВРЕМЯ */}
         {step === 2 && (
-          <div style={{ width: '100%' }}>
+          <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Дата и время</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '20px' }}>Стол №{selectedTable?.number} · {selectedTable?.capacity} мест</p>
 
@@ -256,8 +268,10 @@ export default function GuestHome({ onNavigate }) {
             <h2 style={{ fontSize: '20px', fontWeight: '400', marginBottom: '4px', color: GOLD }}>Предзаказ блюд</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '24px' }}>По желанию — можно заказать на месте</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div>
+            {/* На ПК разносим меню и корзину в две аккуратные колонки */}
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
+              
+              <div style={{ flex: '1 1 500px' }}>
                 {menu.length === 0 && <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', padding: '24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px' }}>Menu empty</div>}
                 
                 {Object.entries(menuByCategory).map(([category, items]) => (
@@ -279,7 +293,7 @@ export default function GuestHome({ onNavigate }) {
                               <div style={{ fontSize: '14px', fontWeight: '600', color: qty > 0 ? GOLD : '#fff' }}>{item.name}</div>
                               {item.description && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{item.description}</div>}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContext: 'space-between', justifyContent: 'space-between' }}>
                               <span style={{ color: GOLD, fontWeight: '600', fontSize: '14px' }}>{item.price} ₽</span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <button onClick={() => setCart(c => ({ ...c, [item.id]: Math.max(0, (c[item.id] || 0) - 1) }))} style={counterBtnStyle}>−</button>
@@ -295,8 +309,8 @@ export default function GuestHome({ onNavigate }) {
                 ))}
               </div>
 
-              {/* Сводка корзины */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '16px' }}>
+              {/* Сводка корзины справа на ПК / внизу на смартфонах */}
+              <div style={{ flex: '1 1 320px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', padding: '16px', position: 'sticky', top: '20px' }}>
                 <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '12px' }}>Итого бронирования</div>
                 
                 <SummaryRow label="Стол" value={`№${selectedTable?.number}`} />
@@ -325,13 +339,14 @@ export default function GuestHome({ onNavigate }) {
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         )}
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textAlign: 'center', padding: '40px 10px' }}>
+          <div style={{ textAlign: 'center', padding: '40px 10px', maxWidth: '480px', margin: '0 auto' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: '22px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '4px' }}>
