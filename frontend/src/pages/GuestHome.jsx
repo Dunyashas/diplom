@@ -157,7 +157,7 @@ export default function GuestHome({ onNavigate }) {
     </div>
   </div>
 )}
-        )}
+      
 
         {/* ШАГ 1: КАРТА СТОЛОВ */}
         {step === 1 && (
