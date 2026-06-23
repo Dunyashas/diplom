@@ -29,10 +29,9 @@ export default function Navbar({ onNavigate, activePage }) {
 
         @media (min-width: 601px) {
           .nav-container {
-            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 6%;
             box-sizing: border-box;
           }
         }
