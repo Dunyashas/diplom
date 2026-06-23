@@ -77,7 +77,7 @@ export default function GuestHome({ onNavigate }) {
 
   const handleBook = async () => {
     if (!reserveDate || !reserveTime) { setError('Укажите дату и время'); return; }
-    setLoading(true); setError('');
+    loading(true); setError('');
     try {
       const start = new Date(`${reserveDate}T${reserveTime}`);
       await api.reserve({
@@ -91,7 +91,7 @@ export default function GuestHome({ onNavigate }) {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      loading(false);
     }
   };
 
@@ -104,7 +104,8 @@ export default function GuestHome({ onNavigate }) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f0f0f', color: '#fff', fontFamily: "sans-serif" }}>
-      {/* Сброс внешних ограничений для ПК версии + КРАСИВЫЙ ФИКС ШАПКИ НА МОБИЛКАХ */}
+      
+      {/* Убрали старый тяжелый CSS для набара, оставили только растягивание контейнеров на 100% */}
       <style>{`
         #root, body, main, .app-container, [class*="container"] { 
           max-width: none !important; 
@@ -112,98 +113,10 @@ export default function GuestHome({ onNavigate }) {
           margin: 0 !important; 
           padding: 0 !important;
         }
-
-        /* Полная пересборка Navbar на мобильных экранах */
-        @media (max-width: 600px) {
-          nav, navbar, [class*="Navbar"], header {
-            display: flex !important;
-            flex-direction: column !important; /* Строим блоки сверху вниз */
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 16px 16px 12px 16px !important;
-            gap: 12px !important;
-            position: relative !important; /* Для абсолютного позиционирования имени */
-            width: 100% !important;
-            box-sizing: border-box !important;
-          }
-
-          /* Логотип Elegance Resto */
-          nav > a:first-child, nav > div:first-child, [class*="logo"] {
-            margin: 0 auto !important;
-            display: block !important;
-            text-align: center !important;
-          }
-
-          /* Блок навигации со ссылками (Бронирование / Мои Брони) */
-          nav > div:not(:last-child), [class*="links"], [class*="menu"] {
-            display: flex !important;
-            flex-direction: row !important; /* Выстраиваем строго в линию горизонтально */
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 24px !important; /* Красивое расстояние между ссылками */
-            width: 100% !important;
-            margin: 4px 0 0 0 !important;
-          }
-
-          /* Чтобы ссылки шли ровно и текст не прыгал */
-          nav a, [class*="links"] a, [class*="nav"] button:not([onClick*="logout"]) {
-            white-space: nowrap !important;
-            font-size: 14px !important;
-            display: inline-block !important;
-            color: rgba(255, 255, 255, 0.6) !important;
-            text-decoration: none !important;
-          }
-
-          /* Фиксируем блок пользователя (Даня Гость + Выйти) в правом углу */
-          nav > div:last-child, 
-          navbar > div:last-child, 
-          header > div:last-child,
-          [class*="Navbar"] > div:last-child {
-            position: absolute !important;
-            right: 16px !important;
-            top: 14px !important; /* На уровне логотипа */
-            display: flex !important;
-            flex-direction: column !important; /* Текст сверху, кнопка снизу */
-            align-items: flex-end !important;   /* Прижимаем к правому краю */
-            gap: 4px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            z-index: 10 !important;
-          }
-
-          /* Текст пользователя (Даня Гость) */
-          nav > div:last-child span,
-          [class*="Navbar"] > div:last-child span,
-          nav span, navbar span, header span {
-            font-size: 12px !important;
-            line-height: 1.2 !important;
-            white-space: nowrap !important; /* Больше "Гость" не упадёт на новую строку */
-            text-align: right !important;
-            color: #fff !important;
-          }
-
-          /* Кнопка "Выйти" строго под именем */
-          nav > div:last-child button,
-          [class*="Navbar"] > div:last-child button,
-          nav button, navbar button, header button {
-            font-size: 10px !important;
-            padding: 2px 8px !important;
-            height: auto !important;
-            width: auto !important;
-            min-width: 55px !important;
-            max-width: 75px !important;
-            margin: 0 !important;
-            text-align: center !important;
-            border-radius: 4px !important;
-            border: 1px solid rgba(255,255,255,0.25) !important;
-            background: transparent !important;
-            color: rgba(255,255,255,0.8) !important;
-            cursor: pointer !important;
-          }
-        }
       `}</style>
 
-      <Navbar onNavigate={onNavigate} />
+      {/* Передаем навигацию и активную страницу "home" */}
+      <Navbar onNavigate={onNavigate} activePage="home" />
 
       {/* Основной контент */}
       <div style={{ width: '100%', maxWidth: '100vw', padding: '24px 6%', boxSizing: 'border-box' }}>
@@ -445,7 +358,7 @@ export default function GuestHome({ onNavigate }) {
 
         {/* ШАГ 4: УСПЕХ */}
         {step === 4 && (
-          <div style={{ textHighlight: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', padding: '60px 10px', maxWidth: '480px', margin: '0 auto' }}>
             <div style={{ fontSize: '54px', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: '24px', fontWeight: '400', color: GOLD, marginBottom: '8px' }}>Бронь подтверждена</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', marginBottom: '4px' }}>
@@ -475,6 +388,7 @@ function FormGroup({ label, children }) {
   );
 }
 
+// Пофиксили опечатку в стилях textHighlight -> textAlign
 function SummaryRow({ label, value, gold }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
