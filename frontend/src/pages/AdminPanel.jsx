@@ -342,11 +342,26 @@ const [showManagePanel, setShowManagePanel] = useState(false);
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
 
         <div>
-          <div style={{
-            position: 'relative', height: isMobile ? '80vh' : '520px',
-            background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
-            border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '4px', overflow: 'hidden'
-          }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
+         <div style={
+    isMobile
+      ? {
+          overflow: 'auto',
+          width: '100%',
+          height: '80vh'
+        }
+      : {}
+  }
+>
+  <div style={{
+    position: 'relative',
+  height: isMobile ? '80vh' : '520px',
+  width: isMobile ? '1200px' : '100%',
+  background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
+  border: `1px solid rgba(201,168,76,0.2)`,
+  borderRadius: '4px',
+  overflow: 'hidden'
+}}
+            onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
 
             <div style={{ position: 'absolute', top: 0, left: '44%', width: '12%', background: 'rgba(201,168,76,0.1)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '5px 0', letterSpacing: '2px', borderRadius: '0 0 4px 4px' }}>
               ВХОД
