@@ -268,24 +268,30 @@ export default function GuestHome({ onNavigate }) {
                 
                 <div style={{ position: 'absolute', top: 0, left: '42%', width: '16%', background: 'rgba(201,168,76,0.15)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '6px 0', borderRadius: '0 0 4px 4px', zIndex: 2 }}>ВХОД</div>
                 
-                {tables.map(table => {
-                  const isSelected = selectedTable?.id === table.id;
-                  const isBusy = table.isBusy;
-                  const color = isSelected ? statusColors.selected : isBusy ? statusColors.busy : statusColors.free;
-                  const isCircle = table.shape === 'circle';
+               {tables.map(table => {
+  const isSelected = selectedTable?.id === table.id;
+  const isBusy = table.isBusy;
+  const color = isSelected ? statusColors.selected : isBusy ? statusColors.busy : statusColors.free;
+  const isCircle = table.shape === 'circle';
 
-                  const w = isCircle ? 70 : 85;
-                  const h = 65;
+  // --- ИСПРАВЛЕННЫЙ БЛОК ---
+  // Мы берем значения прямо из БД (table.tableW и table.tableH)
+  // Если их вдруг нет (null/undefined), используем дефолтные значения (70/85 и 65)
+  const w = table.tableW || (isCircle ? 70 : 85);
+  const h = table.tableH || 65; 
+  // -------------------------
 
-                  return (
-                    <div key={table.id}
-                      onClick={() => !isBusy && setSelectedTable(isSelected ? null : table)}
-                      style={{
-                        position: 'absolute',
-                        left: `calc(${table.posX}% - ${w / 2}px)`,
-                        top: `calc(${table.posY}% - ${h / 2}px)`,
-                        width: `${w}px`,
-                        height: `${h}px`,
+  return (
+    <div key={table.id}
+      onClick={() => !isBusy && setSelectedTable(isSelected ? null : table)}
+      style={{
+        position: 'absolute',
+        // Теперь используем переменные w и h, которые зависят от БД
+        left: `calc(${table.posX}% - ${w / 2}px)`,
+        top: `calc(${table.posY}% - ${h / 2}px)`,
+        width: `${w}px`,
+        height: `${h}px`,
+        // ... остальной стиль остается прежним
                         borderRadius: isCircle ? '50%' : '6px',
                         background: `rgba(${isSelected ? '201,168,76' : isBusy ? '231,76,60' : '39,174,96'},0.12)`,
                         border: `2px solid ${color}`,
