@@ -28,7 +28,29 @@ export default function GuestHome({ onNavigate }) {
 
   const minDate = new Date().toISOString().split('T')[0];
 
-  useEffect(() => { loadTables(); }, []);
+ useEffect(() => {
+  // Функция для загрузки столов
+  const refreshTables = () => {
+    // Если гость уже выбрал дату/время, обновляем с учетом фильтров
+    if (reserveDate && reserveTime) {
+      const start = new Date(`${reserveDate}T${reserveTime}`);
+      const end = new Date(start.getTime() + duration * 3600000);
+      loadTables(reserveDate, start.toISOString(), end.toISOString());
+    } else {
+      // Иначе просто загружаем все столы
+      loadTables();
+    }
+  };
+
+  // Загружаем сразу при старте
+  refreshTables();
+
+  // Запускаем таймер: обновление каждые 5 секунд
+  const interval = setInterval(refreshTables, 5000);
+
+  // Очистка таймера при уходе со страницы
+  return () => clearInterval(interval);
+}, [reserveDate, reserveTime, duration]); // Перезапускаем если меняются параметры
   useEffect(() => {
     if (step === 3) loadMenu();
   }, [step]);
