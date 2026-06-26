@@ -22,7 +22,10 @@ export default function AdminPanel() {
   const [tab, setTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleNav = (id) => { setTab(id); setSidebarOpen(false); };
+  const handleNav = (id) => { 
+    setTab(id); 
+    setSidebarOpen(false); 
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', fontFamily: "'Georgia', serif" }}>
@@ -37,7 +40,6 @@ export default function AdminPanel() {
           background: 'rgba(201,168,76,0.15)', border: `1px solid rgba(201,168,76,0.4)`,
           color: GOLD, fontSize: '18px', cursor: 'pointer',
           alignItems: 'center', justifyContent: 'center',
-          id: 'burger-btn'
         }}
         className="burger-btn"
       >
@@ -334,7 +336,6 @@ function TablesTab() {
     }
   };
 
-  // Общий рендер карты (используется и на ПК и на мобилке)
   const MapCanvas = ({ scrollable }) => (
     <div style={{
       width: '100%',
@@ -418,7 +419,6 @@ function TablesTab() {
     </div>
   );
 
-  // Панель редактирования (общая для ПК и мобилки)
   const EditPanel = () => selectedTable ? (
     <div style={{ background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.3)`, borderRadius: '4px', padding: '20px' }}>
       <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>
@@ -457,7 +457,6 @@ function TablesTab() {
     </div>
   ) : null;
 
-  // Панель добавления (общая)
   const AddPanel = () => (
     <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', padding: '20px' }}>
       <div style={{ fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>Добавить стол</div>
@@ -515,14 +514,12 @@ function TablesTab() {
 
       {/* ── Мобильная версия (≤ 768px) ── */}
       <div className="tables-mobile">
-        {/* Карта со скроллом */}
         <MapCanvas scrollable={true} />
 
         <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '6px', marginBottom: '16px', textAlign: 'center' }}>
           Нажмите на стол чтобы редактировать
         </p>
 
-        {/* Кнопка "+" для добавления */}
         <button
           onClick={() => { setMobilePanel(mobilePanel === 'add' ? null : 'add'); setSelectedTable(null); }}
           style={{
@@ -537,7 +534,6 @@ function TablesTab() {
           {mobilePanel === 'add' ? '✕' : '+'}
         </button>
 
-        {/* Bottom sheet — редактирование стола */}
         {mobilePanel === 'table' && selectedTable && (
           <div style={{
             position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400,
@@ -552,7 +548,6 @@ function TablesTab() {
           </div>
         )}
 
-        {/* Bottom sheet — добавить стол */}
         {mobilePanel === 'add' && (
           <div style={{
             position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400,
@@ -567,7 +562,6 @@ function TablesTab() {
           </div>
         )}
 
-        {/* Оверлей для закрытия bottom sheet */}
         {mobilePanel && (
           <div onClick={() => { setMobilePanel(null); setSelectedTable(null); }}
             style={{ position: 'fixed', inset: 0, zIndex: 350, background: 'rgba(0,0,0,0.5)' }} />
@@ -585,282 +579,6 @@ function TablesTab() {
     </div>
   );
 }
-
-  const load = async () => {
-    const data = await api.getTables();
-    setTables(Array.isArray(data) ? data : []);
-  };
-  useEffect(() => { load(); }, []);
-
-  const handleDrop = async (e) => {
-    const tableId = e.dataTransfer.getData('tableId');
-    const rect = e.currentTarget.getBoundingClientRect();
-    const posX = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    const posY = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-    setTables(prev => prev.map(t => t.id === tableId ? { ...t, posX, posY } : t));
-    try { await api.updateTable(tableId, { posX, posY }); } catch { load(); }
-  };
-
-  const handleAdd = async (e) => {
-    e.preventDefault(); setError('');
-    try {
-      await api.createTable({ ...form, number: parseInt(form.number), capacity: parseInt(form.capacity) });
-      load(); setForm({ number: '', capacity: 4, shape: 'rectangle' });
-    } catch (err) { setError(err.message); }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Удалить стол?')) return;
-    if (selectedTable?.id === id) setSelectedTable(null);
-    await api.deleteTable(id); load();
-  };
-
-  const startResize = (e, table) => {
-  e.preventDefault();
-  e.stopPropagation();
-  isDragging.current = true;
-  const startX = e.clientX;
-  const startY = e.clientY;
-  const startW = table.tableW || 100;
-  const startH = table.tableH || 76;
-
-  const onMove = (mv) => {
-    const newW = Math.max(60, Math.round(startW + (mv.clientX - startX)));
-    const newH = Math.max(50, Math.round(startH + (mv.clientY - startY)));
-    setTables(prev => prev.map(t => t.id === table.id ? { ...t, tableW: newW, tableH: newH } : t));
-    setSelectedTable(prev => prev?.id === table.id ? { ...prev, tableW: newW, tableH: newH } : prev);
-  };
-
-  const onUp = async (mv) => {
-    isDragging.current = false;
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    const newW = Math.max(60, Math.round(startW + (mv.clientX - startX)));
-    const newH = Math.max(50, Math.round(startH + (mv.clientY - startY)));
-    try {
-      await api.updateTable(table.id, {
-        number: table.number,
-        capacity: table.capacity,
-        shape: table.shape,
-        posX: table.posX,
-        posY: table.posY,
-        tableW: newW,
-        tableH: newH
-      });
-
-      setSelectedTable(prev => prev?.id === table.id ? { ...prev, tableW: newW, tableH: newH } : prev);
-    } catch (err) {
-      console.error(err);
-      load();
-    }
-  };
-
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
-};
-
-  const handleCapacity = async (delta) => {
-    if (!selectedTable) return;
-    const updated = { ...selectedTable, capacity: Math.max(1, selectedTable.capacity + delta) };
-    setSelectedTable(updated);
-    setTables(prev => prev.map(t => t.id === updated.id ? updated : t));
-    try { await api.updateTable(updated.id, { capacity: updated.capacity }); } catch { load(); }
-  };
-
-  const handleShapeChange = async (shape) => {
-    if (!selectedTable) return;
-    const updated = { ...selectedTable, shape };
-    setSelectedTable(updated);
-    setTables(prev => prev.map(t => t.id === updated.id ? updated : t));
-    try { await api.updateTable(updated.id, { shape }); } catch { load(); }
-  };
-
-  return (
-    <div>
-      <PageTitle title="Карта зала" subtitle="Перетаскивайте столы · Тяните за ↘ угол чтобы изменить размер" />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
-
-        <div>
-          <div style={{
-            position: 'relative', height: '520px',
-            background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
-            border: `1px solid rgba(201,168,76,0.2)`, borderRadius: '4px', overflow: 'hidden'
-          }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
-
-            <div style={{ position: 'absolute', top: 0, left: '44%', width: '12%', background: 'rgba(201,168,76,0.1)', color: GOLD, textAlign: 'center', fontSize: '10px', padding: '5px 0', letterSpacing: '2px', borderRadius: '0 0 4px 4px' }}>
-              ВХОД
-            </div>
-
-            {tables.map(table => {
-              const isSelected = selectedTable?.id === table.id;
-              const w = table.tableW || (table.shape === 'circle' ? 80 : 100);
-              const h = table.tableH || 76;
-
-              return (
-                <div key={table.id}
-                  draggable
-                  onDragStart={e => { if (isDragging.current) { e.preventDefault(); return; } e.dataTransfer.setData('tableId', table.id); }}
-                  onClick={() => setSelectedTable(isSelected ? null : table)}
-                  style={{
-                    position: 'absolute',
-                    left: `calc(${table.posX}% - ${w / 2}px)`,
-                    top: `calc(${table.posY}% - ${h / 2}px)`,
-                    width: `${w}px`, height: `${h}px`,
-                    borderRadius: table.shape === 'circle' ? '50%' : '6px',
-                    background: isSelected ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.12)',
-                    border: `2px solid ${isSelected ? '#fff' : GOLD}`,
-                    color: isSelected ? '#fff' : GOLD,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'move', userSelect: 'none',
-                    boxShadow: isSelected ? '0 0 16px rgba(201,168,76,0.5)' : '0 4px 12px rgba(0,0,0,0.4)',
-                    transition: 'box-shadow 0.15s'
-                  }}>
-                  <span style={{ fontWeight: '700', fontSize: '14px' }}>№{table.number}</span>
-                  <span style={{ fontSize: '10px', opacity: 0.7 }}>{table.capacity} мест</span>
-
-                  <button onClick={(e) => { e.stopPropagation(); handleDelete(table.id); }}
-                    style={{ position: 'absolute', top: '-7px', right: '-7px', width: '20px', height: '20px', borderRadius: '50%', background: '#e74c3c', border: 'none', color: '#fff', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ×
-                  </button>
-
-                  {table.shape !== 'circle' && (
-                    <div
-                      onMouseDown={(e) => startResize(e, table)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', bottom: '2px', right: '2px',
-                        width: '14px', height: '14px', cursor: 'se-resize',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(201,168,76,0.6)',
-                        fontSize: '10px', lineHeight: 1,
-                        userSelect: 'none'
-                      }}
-                      title="Потяните для изменения размера"
-                    >
-                      ◢
-                    </div>
-                  )}
-
-                  {table.shape === 'circle' && (
-                    <div
-                      onMouseDown={(e) => startResize(e, table)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', bottom: '-8px', right: '-8px',
-                        width: '16px', height: '16px', cursor: 'se-resize',
-                        background: isSelected ? 'rgba(255,255,255,0.3)' : 'rgba(201,168,76,0.4)',
-                        borderRadius: '50%', border: `1px solid ${GOLD}`,
-                        userSelect: 'none'
-                      }}
-                      title="Потяните для изменения размера"
-                    />
-                  )}
-                </div>
-              );
-            })}
-
-            {tables.length === 0 && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '14px' }}>
-                Добавьте первый стол →
-              </div>
-            )}
-          </div>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>
-            Перетащите стол чтобы переместить · Нажмите чтобы выбрать · Тяните ◢ чтобы изменить размер
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {selectedTable ? (
-            <div style={{ background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.3)`, borderRadius: '4px', padding: '20px' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>
-                Стол №{selectedTable.number}
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>Размер (пикс.)</div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
-                  {selectedTable.tableW || (selectedTable.shape === 'circle' ? 80 : 100)} × {selectedTable.tableH || 76} px
-                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginLeft: '6px' }}>тяните ◢</span>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>Вместимость</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <button onClick={() => handleCapacity(-1)} style={resizeBtn}>−</button>
-                  <span style={{ fontSize: '20px', fontWeight: '600', color: '#fff', minWidth: '30px', textAlign: 'center' }}>{selectedTable.capacity}</span>
-                  <button onClick={() => handleCapacity(1)} style={resizeBtn}>+</button>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>мест</span>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>Форма</div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {[['rectangle', '▬ Прямоугольный'], ['circle', '● Круглый']].map(([val, label]) => (
-                    <button key={val} onClick={() => handleShapeChange(val)}
-                      style={{
-                        flex: 1, padding: '8px 4px', border: `1px solid ${selectedTable.shape === val ? GOLD : 'rgba(255,255,255,0.15)'}`,
-                        borderRadius: '3px', background: selectedTable.shape === val ? 'rgba(201,168,76,0.2)' : 'transparent',
-                        color: selectedTable.shape === val ? GOLD : 'rgba(255,255,255,0.5)',
-                        fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit'
-                      }}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button onClick={() => setSelectedTable(null)} style={{ ...ghostBtn, width: '100%', fontSize: '12px' }}>
-                Снять выделение
-              </button>
-            </div>
-          ) : (
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '16px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>
-              Нажмите на стол<br />чтобы редактировать
-            </div>
-          )}
-
-         
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', padding: '20px' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>Добавить стол</div>
-            <form onSubmit={handleAdd}>
-              <AdminField label="Номер стола">
-                <input type="number" required value={form.number} onChange={e => setForm(f => ({ ...f, number: e.target.value }))} style={adminInput} />
-              </AdminField>
-              <AdminField label="Вместимость">
-                <input type="number" required min="1" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} style={adminInput} />
-              </AdminField>
-              <AdminField label="Форма">
-                <select value={form.shape} onChange={e => setForm(f => ({ ...f, shape: e.target.value }))} style={adminInput}>
-                  <option value="rectangle">Прямоугольный</option>
-                  <option value="circle">Круглый</option>
-                </select>
-              </AdminField>
-              {error && <div style={{ color: '#fca5a5', fontSize: '13px', marginBottom: '12px' }}>{error}</div>}
-              <button type="submit" style={{ ...goldBtn, width: '100%' }}>+ Создать стол</button>
-            </form>
-
-            <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '2px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Столов: {tables.length}
-              </div>
-              {tables.map(t => (
-                <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '13px' }}>
-                  <span style={{ color: GOLD }}>№{t.number}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>{t.capacity} мест · {t.shape === 'circle' ? '○' : '□'}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-
 
 function MenuTab() {
   const [menu, setMenu] = useState([]);
@@ -933,15 +651,14 @@ function MenuTab() {
               value={form.category} 
               onChange={e => setForm(f => ({ ...f, category: e.target.value }))} 
               style={adminInput}
-  >           
+            >           
               <option value="" disabled>Выберите категорию</option>
-              
               <option value="Горячее">Горячее</option>
               <option value="Салаты">Салаты</option>
               <option value="Напитки">Напитки</option>
               <option value="Десерты">Десерты</option>
-              </select>
-            </AdminField>
+            </select>
+          </AdminField>
           {error && <div style={{ color: '#fca5a5', fontSize: '13px', marginBottom: '12px' }}>{error}</div>}
           <button type="button" onClick={handleAdd} style={{ ...goldBtn, width: '100%' }}>+ Добавить</button>
         </div>
