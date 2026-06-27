@@ -153,6 +153,7 @@ function ReservationsTab() {
   const [list, setList] = useState([]);
   const [filter, setFilter] = useState({ date: '', status: '' });
   const [loading, setLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -194,52 +195,125 @@ function ReservationsTab() {
       </div>
 
       {loading ? <Loading /> : list.length === 0 ? <Empty text="Бронирований не найдено" /> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-            <thead>
-              <tr>
-                {['Стол', 'Гость', 'Начало', 'Конец', 'Предзаказ', 'Статус', 'Действия'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: '11px', letterSpacing: '1px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {list.map(r => {
-                const s = STATUS_LABELS[r.status] || { label: r.status, color: '#888' };
-                const preorderTotal = r.preorders?.reduce((sum, p) => sum + (p.menuItem?.price || 0) * p.quantity, 0) || 0;
-                return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px', fontWeight: '600', color: GOLD }}>№{r.table?.number}</td>
-                    <td style={{ padding: '12px' }}>
-                      <div>{r.user?.firstName} {r.user?.lastName}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {list.map(r => {
+            const s = STATUS_LABELS[r.status] || { label: r.status, color: '#888' };
+            const preorderTotal = r.preorders?.reduce((sum, p) => sum + (p.menuItem?.price || 0) * p.quantity, 0) || 0;
+            const isExpanded = expandedId === r.id;
+            const start = new Date(r.startTime);
+            const end = new Date(r.endTime);
+
+            return (
+              <div key={r.id} style={{
+                border: `1px solid ${isExpanded ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                borderRadius: '6px',
+                background: isExpanded ? 'rgba(201,168,76,0.04)' : 'rgba(255,255,255,0.02)',
+                overflow: 'hidden',
+                transition: 'border-color 0.2s'
+              }}>
+                {/* Строка-заголовок — кликабельная */}
+                <div
+                  onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '14px 16px', cursor: 'pointer', flexWrap: 'wrap', gap: '8px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: '700', color: GOLD, fontSize: '15px', minWidth: '48px' }}>№{r.table?.number}</span>
+                    <div>
+                      <div style={{ fontSize: '14px', color: '#fff' }}>{r.user?.firstName} {r.user?.lastName}</div>
                       <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{r.user?.email}</div>
-                    </td>
-                    <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>{new Date(r.startTime).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
-                    <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>{new Date(r.endTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
-                    <td style={{ padding: '12px', color: preorderTotal > 0 ? GOLD : 'rgba(255,255,255,0.3)' }}>
-                      {preorderTotal > 0 ? `${preorderTotal.toLocaleString('ru-RU')} ₽` : '—'}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '20px', background: `${s.color}22`, color: s.color, border: `1px solid ${s.color}44`, whiteSpace: 'nowrap' }}>
-                        {s.label}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>
+                      📅 {start.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}
+                      &nbsp;·&nbsp;
+                      🕐 {start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} – {end.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '20px', background: `${s.color}22`, color: s.color, border: `1px solid ${s.color}44`, whiteSpace: 'nowrap' }}>
+                      {s.label}
+                    </span>
+                    {preorderTotal > 0 && (
+                      <span style={{ fontSize: '13px', color: GOLD, fontWeight: '600' }}>
+                        {preorderTotal.toLocaleString('ru-RU')} ₽
                       </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {r.status !== 'CANCELLED' && (
-                          <>
-                            {r.status !== 'CONFIRMED' && <ActionBtn label="✓" color="#27ae60" onClick={() => handleStatus(r.id, 'CONFIRMED')} />}
-                            <ActionBtn label="✕ Отменить" color="#e74c3c" onClick={() => handleStatus(r.id, 'CANCELLED')} />
-                          </>
-                        )}
-                        <ActionBtn label="🗑" color="#888" onClick={() => handleDelete(r.id)} />
+                    )}
+                  </div>
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '16px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▾</span>
+                </div>
+
+                {/* Раскрытые детали */}
+                {isExpanded && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '20px 16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: r.preorders?.length > 0 || r.guestComment ? '20px' : '0' }}>
+                      <DetailBlock label="Стол">
+                        №{r.table?.number} · {r.table?.capacity} мест
+                      </DetailBlock>
+                      <DetailBlock label="Дата и время">
+                        {start.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}<br />
+                        {start.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} – {end.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                      </DetailBlock>
+                      <DetailBlock label="Гость">
+                        {r.user?.firstName} {r.user?.lastName}<br />
+                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>{r.user?.email}</span>
+                      </DetailBlock>
+                      {r.guestComment && (
+                        <DetailBlock label="Комментарий">
+                          <span style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.6)' }}>"{r.guestComment}"</span>
+                        </DetailBlock>
+                      )}
+                    </div>
+
+                    {/* Предзаказ */}
+                    {r.preorders?.length > 0 && (
+                      <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>
+                          Предзаказ блюд
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {r.preorders.map((p, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '13px', color: '#fff' }}>{p.menuItem?.name}</span>
+                                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '10px' }}>×{p.quantity}</span>
+                              </div>
+                              <span style={{ fontSize: '13px', color: GOLD, fontWeight: '600' }}>
+                                {((p.menuItem?.price || 0) * p.quantity).toLocaleString('ru-RU')} ₽
+                              </span>
+                            </div>
+                          ))}
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 12px 0' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '700', color: GOLD }}>
+                              Итого: {preorderTotal.toLocaleString('ru-RU')} ₽
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    )}
+
+                    {/* Действия */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                      {r.status !== 'CANCELLED' && (
+                        <>
+                          {r.status !== 'CONFIRMED' && (
+                            <button onClick={() => handleStatus(r.id, 'CONFIRMED')} style={{ padding: '8px 16px', border: '1px solid rgba(39,174,96,0.5)', borderRadius: '3px', background: 'rgba(39,174,96,0.1)', color: '#27ae60', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                              ✓ Подтвердить
+                            </button>
+                          )}
+                          <button onClick={() => handleStatus(r.id, 'CANCELLED')} style={{ padding: '8px 16px', border: '1px solid rgba(231,76,60,0.5)', borderRadius: '3px', background: 'rgba(231,76,60,0.1)', color: '#e74c3c', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                            ✕ Отменить
+                          </button>
+                        </>
+                      )}
+                      <button onClick={() => handleDelete(r.id)} style={{ padding: '8px 16px', border: '1px solid rgba(136,136,136,0.4)', borderRadius: '3px', background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        🗑 Удалить
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
