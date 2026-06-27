@@ -30,6 +30,7 @@ export default function AdminPanel() {
 
       <button
         onClick={() => setSidebarOpen(o => !o)}
+        className="burger-btn"
         style={{
           display: 'none',
           position: 'fixed', top: '68px', left: '12px', zIndex: 200,
@@ -37,9 +38,7 @@ export default function AdminPanel() {
           background: 'rgba(201,168,76,0.15)', border: `1px solid rgba(201,168,76,0.4)`,
           color: GOLD, fontSize: '18px', cursor: 'pointer',
           alignItems: 'center', justifyContent: 'center',
-          id: 'burger-btn'
         }}
-        className="burger-btn"
       >
         {sidebarOpen ? '✕' : '☰'}
       </button>
@@ -51,14 +50,16 @@ export default function AdminPanel() {
       )}
 
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 60px)' }}>
-        {/* Sidebar */}
-        <aside style={{
-          width: '220px', flexShrink: 0,
-          background: 'rgba(255,255,255,0.02)',
-          borderRight: '1px solid rgba(255,255,255,0.08)',
-          padding: '24px 12px',
-          transition: 'transform 0.25s ease',
-        }} className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <aside
+          className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}
+          style={{
+            width: '220px', flexShrink: 0,
+            background: 'rgba(255,255,255,0.02)',
+            borderRight: '1px solid rgba(255,255,255,0.08)',
+            padding: '24px 12px',
+            transition: 'transform 0.25s ease',
+          }}
+        >
           {NAV_ITEMS.map(item => (
             <button key={item.id} onClick={() => handleNav(item.id)} style={{
               display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
@@ -83,6 +84,10 @@ export default function AdminPanel() {
       </div>
 
       <style>{`
+        .burger-btn { display: none; }
+        .tables-desktop { display: block; }
+        .tables-mobile  { display: none; }
+
         @media (max-width: 768px) {
           .burger-btn { display: flex !important; }
           .admin-sidebar {
@@ -99,12 +104,15 @@ export default function AdminPanel() {
             transform: translateX(0);
           }
           main { padding: 16px !important; }
+          .tables-desktop { display: none !important; }
+          .tables-mobile  { display: block !important; }
         }
       `}</style>
     </div>
   );
 }
 
+// ─── ДАШБОРД ─────────────────────────────────────────────────────────────────
 function Dashboard() {
   const [stats, setStats] = useState(null);
   useEffect(() => { api.getStats().then(setStats).catch(console.error); }, []);
@@ -140,6 +148,7 @@ function StatCard({ icon, label, value, gold }) {
   );
 }
 
+// ─── БРОНИРОВАНИЯ ─────────────────────────────────────────────────────────────
 function ReservationsTab() {
   const [list, setList] = useState([]);
   const [filter, setFilter] = useState({ date: '', status: '' });
@@ -237,11 +246,12 @@ function ReservationsTab() {
   );
 }
 
+// ─── КАРТА ЗАЛА ───────────────────────────────────────────────────────────────
 function TablesTab() {
   const [tables, setTables] = useState([]);
   const [form, setForm] = useState({ number: '', capacity: 4, shape: 'rectangle' });
   const [selectedTable, setSelectedTable] = useState(null);
-  const [mobilePanel, setMobilePanel] = useState(null); // null | 'table' | 'add'
+  const [mobilePanel, setMobilePanel] = useState(null);
   const [error, setError] = useState('');
   const isDragging = useRef(false);
 
@@ -298,7 +308,10 @@ function TablesTab() {
       const newW = Math.max(60, Math.round(startW + (mv.clientX - startX)));
       const newH = Math.max(50, Math.round(startH + (mv.clientY - startY)));
       try {
-        await api.updateTable(table.id, { number: table.number, capacity: table.capacity, shape: table.shape, posX: table.posX, posY: table.posY, tableW: newW, tableH: newH });
+        await api.updateTable(table.id, {
+          number: table.number, capacity: table.capacity, shape: table.shape,
+          posX: table.posX, posY: table.posY, tableW: newW, tableH: newH
+        });
         setSelectedTable(prev => prev?.id === table.id ? { ...prev, tableW: newW, tableH: newH } : prev);
       } catch (err) { console.error(err); load(); }
     };
@@ -325,34 +338,28 @@ function TablesTab() {
 
   const handleTableClick = (table) => {
     const isSelected = selectedTable?.id === table.id;
-    if (isSelected) {
-      setSelectedTable(null);
-      setMobilePanel(null);
-    } else {
-      setSelectedTable(table);
-      setMobilePanel('table');
-    }
+    if (isSelected) { setSelectedTable(null); setMobilePanel(null); }
+    else { setSelectedTable(table); setMobilePanel('table'); }
   };
 
-  // Общий рендер карты (используется и на ПК и на мобилке)
   const MapCanvas = ({ scrollable }) => (
     <div style={{
       width: '100%',
-      height: scrollable ? '65vw' : '520px',
-      minHeight: scrollable ? '300px' : '520px',
-      maxHeight: scrollable ? '420px' : 'none',
+      height: scrollable ? '55vw' : '520px',
+      minHeight: scrollable ? '280px' : '520px',
+      maxHeight: scrollable ? '400px' : 'none',
       overflow: scrollable ? 'auto' : 'hidden',
       border: `1px solid rgba(201,168,76,0.2)`,
       borderRadius: '4px',
       WebkitOverflowScrolling: 'touch',
-      touchAction: 'auto',
     }}>
-      <div style={{
-        position: 'relative',
-        width: scrollable ? '1000px' : '100%',
-        height: scrollable ? '600px' : '520px',
-        background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
-      }}
+      <div
+        style={{
+          position: 'relative',
+          width: scrollable ? '1000px' : '100%',
+          height: scrollable ? '600px' : '520px',
+          background: 'linear-gradient(180deg, #141414 0%, #0f0f0f 100%)',
+        }}
         onDragOver={e => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -395,13 +402,11 @@ function TablesTab() {
                   </button>
                   {table.shape !== 'circle' && (
                     <div onMouseDown={(e) => startResize(e, table)} onClick={(e) => e.stopPropagation()}
-                      style={{ position: 'absolute', bottom: '2px', right: '2px', width: '14px', height: '14px', cursor: 'se-resize', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(201,168,76,0.6)', fontSize: '10px', userSelect: 'none' }}
-                      title="Потяните для изменения размера">◢</div>
+                      style={{ position: 'absolute', bottom: '2px', right: '2px', width: '14px', height: '14px', cursor: 'se-resize', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(201,168,76,0.6)', fontSize: '10px', userSelect: 'none' }}>◢</div>
                   )}
                   {table.shape === 'circle' && (
                     <div onMouseDown={(e) => startResize(e, table)} onClick={(e) => e.stopPropagation()}
-                      style={{ position: 'absolute', bottom: '-8px', right: '-8px', width: '16px', height: '16px', cursor: 'se-resize', background: isSelected ? 'rgba(255,255,255,0.3)' : 'rgba(201,168,76,0.4)', borderRadius: '50%', border: `1px solid ${GOLD}`, userSelect: 'none' }}
-                      title="Потяните для изменения размера" />
+                      style={{ position: 'absolute', bottom: '-8px', right: '-8px', width: '16px', height: '16px', cursor: 'se-resize', background: isSelected ? 'rgba(255,255,255,0.3)' : 'rgba(201,168,76,0.4)', borderRadius: '50%', border: `1px solid ${GOLD}`, userSelect: 'none' }} />
                   )}
                 </>
               )}
@@ -418,7 +423,6 @@ function TablesTab() {
     </div>
   );
 
-  // Панель редактирования (общая для ПК и мобилки)
   const EditPanel = () => selectedTable ? (
     <div style={{ background: 'rgba(201,168,76,0.08)', border: `1px solid rgba(201,168,76,0.3)`, borderRadius: '4px', padding: '20px' }}>
       <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>
@@ -428,6 +432,7 @@ function TablesTab() {
         <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>Размер (пикс.)</div>
         <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
           {selectedTable.tableW || (selectedTable.shape === 'circle' ? 80 : 100)} × {selectedTable.tableH || 76} px
+          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginLeft: '6px' }}>тяните ◢ на ПК</span>
         </div>
       </div>
       <div style={{ marginBottom: '16px' }}>
@@ -457,7 +462,6 @@ function TablesTab() {
     </div>
   ) : null;
 
-  // Панель добавления (общая)
   const AddPanel = () => (
     <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', padding: '20px' }}>
       <div style={{ fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', color: GOLD, marginBottom: '16px' }}>Добавить стол</div>
@@ -493,13 +497,13 @@ function TablesTab() {
     <div>
       <PageTitle title="Карта зала" subtitle="Нажмите на стол для редактирования" />
 
-      {/* ── ПК-версия (> 768px) ── */}
+      {/* ПК */}
       <div className="tables-desktop">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
           <div>
             <MapCanvas scrollable={false} />
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>
-              Перетащите стол чтобы переместить · Нажмите чтобы выбрать · Тяните ◢ чтобы изменить размер
+              Перетащите стол · Нажмите чтобы выбрать · Тяните ◢ для изменения размера
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -513,23 +517,21 @@ function TablesTab() {
         </div>
       </div>
 
-      {/* ── Мобильная версия (≤ 768px) ── */}
+      {/* Мобилка */}
       <div className="tables-mobile">
-        {/* Карта со скроллом */}
         <MapCanvas scrollable={true} />
-
-        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '6px', marginBottom: '16px', textAlign: 'center' }}>
+        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '6px', marginBottom: '8px', textAlign: 'center' }}>
           Нажмите на стол чтобы редактировать
         </p>
 
-        {/* Кнопка "+" для добавления */}
+        {/* Кнопка + */}
         <button
           onClick={() => { setMobilePanel(mobilePanel === 'add' ? null : 'add'); setSelectedTable(null); }}
           style={{
             position: 'fixed', bottom: '24px', right: '20px', zIndex: 300,
             width: '52px', height: '52px', borderRadius: '50%',
             background: GOLD, border: 'none', color: '#000',
-            fontSize: '28px', fontWeight: '300', cursor: 'pointer',
+            fontSize: '28px', cursor: 'pointer',
             boxShadow: '0 4px 20px rgba(201,168,76,0.5)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
@@ -537,56 +539,33 @@ function TablesTab() {
           {mobilePanel === 'add' ? '✕' : '+'}
         </button>
 
-        {/* Bottom sheet — редактирование стола */}
+        {/* Оверлей */}
+        {mobilePanel && (
+          <div onClick={() => { setMobilePanel(null); setSelectedTable(null); }}
+            style={{ position: 'fixed', inset: 0, zIndex: 350, background: 'rgba(0,0,0,0.5)' }} />
+        )}
+
+        {/* Bottom sheet — стол */}
         {mobilePanel === 'table' && selectedTable && (
-          <div style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400,
-            background: '#141414', borderTop: `2px solid rgba(201,168,76,0.4)`,
-            borderRadius: '16px 16px 0 0',
-            padding: '20px 20px 36px',
-            boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
-            maxHeight: '70vh', overflowY: 'auto'
-          }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400, background: '#141414', borderTop: `2px solid rgba(201,168,76,0.4)`, borderRadius: '16px 16px 0 0', padding: '20px 20px 36px', boxShadow: '0 -8px 40px rgba(0,0,0,0.6)', maxHeight: '70vh', overflowY: 'auto' }}>
             <div style={{ width: '40px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', margin: '0 auto 20px' }} />
             <EditPanel />
           </div>
         )}
 
-        {/* Bottom sheet — добавить стол */}
+        {/* Bottom sheet — добавить */}
         {mobilePanel === 'add' && (
-          <div style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400,
-            background: '#141414', borderTop: `2px solid rgba(201,168,76,0.4)`,
-            borderRadius: '16px 16px 0 0',
-            padding: '20px 20px 36px',
-            boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
-            maxHeight: '80vh', overflowY: 'auto'
-          }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 400, background: '#141414', borderTop: `2px solid rgba(201,168,76,0.4)`, borderRadius: '16px 16px 0 0', padding: '20px 20px 36px', boxShadow: '0 -8px 40px rgba(0,0,0,0.6)', maxHeight: '80vh', overflowY: 'auto' }}>
             <div style={{ width: '40px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', margin: '0 auto 20px' }} />
             <AddPanel />
           </div>
         )}
-
-        {/* Оверлей для закрытия bottom sheet */}
-        {mobilePanel && (
-          <div onClick={() => { setMobilePanel(null); setSelectedTable(null); }}
-            style={{ position: 'fixed', inset: 0, zIndex: 350, background: 'rgba(0,0,0,0.5)' }} />
-        )}
       </div>
-
-      <style>{`
-        .tables-desktop { display: block; }
-        .tables-mobile  { display: none; }
-        @media (max-width: 768px) {
-          .tables-desktop { display: none; }
-          .tables-mobile  { display: block; }
-        }
-      `}</style>
     </div>
   );
 }
 
-  
+// ─── МЕНЮ ─────────────────────────────────────────────────────────────────────
 function MenuTab() {
   const [menu, setMenu] = useState([]);
   const [form, setForm] = useState({ name: '', description: '', price: '', category: '', imageUrl: '' });
@@ -615,7 +594,6 @@ function MenuTab() {
     <div>
       <PageTitle title="Меню" subtitle={`${menu.length} позиций`} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '32px', alignItems: 'start' }}>
-
         <div>
           {menu.length === 0 ? <Empty text="Меню пока пустое. Добавьте первую позицию." /> : (
             categories.map(cat => (
@@ -654,19 +632,14 @@ function MenuTab() {
             <input type="number" step="0.01" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} style={adminInput} />
           </AdminField>
           <AdminField label="Категория">
-            <select 
-              value={form.category} 
-              onChange={e => setForm(f => ({ ...f, category: e.target.value }))} 
-              style={adminInput}
-  >           
+            <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={adminInput}>
               <option value="" disabled>Выберите категорию</option>
-              
               <option value="Горячее">Горячее</option>
               <option value="Салаты">Салаты</option>
               <option value="Напитки">Напитки</option>
               <option value="Десерты">Десерты</option>
-              </select>
-            </AdminField>
+            </select>
+          </AdminField>
           {error && <div style={{ color: '#fca5a5', fontSize: '13px', marginBottom: '12px' }}>{error}</div>}
           <button type="button" onClick={handleAdd} style={{ ...goldBtn, width: '100%' }}>+ Добавить</button>
         </div>
@@ -675,6 +648,7 @@ function MenuTab() {
   );
 }
 
+// ─── ВСПОМОГАТЕЛЬНЫЕ ─────────────────────────────────────────────────────────
 function PageTitle({ title, subtitle }) {
   return (
     <div style={{ marginBottom: '32px' }}>
@@ -714,8 +688,3 @@ const adminInput = {
 const goldBtn = { padding: '10px 20px', border: 'none', borderRadius: '3px', background: GOLD, color: '#000', fontSize: '13px', letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Georgia', serif", fontWeight: '600' };
 const ghostBtn = { padding: '9px 16px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '3px', background: 'transparent', color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer', fontFamily: "'Georgia', serif" };
 const resizeBtn = { width: '32px', height: '32px', borderRadius: '50%', border: `1px solid rgba(201,168,76,0.5)`, background: 'transparent', color: GOLD, fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' };
-
-
-
-
-
